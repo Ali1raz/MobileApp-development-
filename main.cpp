@@ -2,6 +2,8 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -20,13 +22,17 @@ class User {
 		string name;
 		double total_deposited;
 		double total_received;
-		bool is_selected = false;
+		bool is_selected;
 
 	public:
 		static int idCounter;
-		User(string n) {
+		User(string n): is_selected(false) {
 			id = ++idCounter;
 			name = n;
+		}
+		
+		bool get_selected() {
+			return is_selected;
 		}
 
 		void print_user () {
@@ -70,9 +76,8 @@ class Comittee {
 			cout << "Adding Comittee datails:" << endl;
 			cout << "Enter total duration(months): ";
 			cin >> total_duration;
-			cout << "Enter total installments: ";
+			cout << "Enter total installments count: ";
 			cin >> installments_number;
-			
 			
 			cout << "total Price will be: " << installments_number * total_duration << endl;
 			comittee_created = true;
@@ -118,11 +123,41 @@ class Comittee {
 				user.print_user();
 			}
 		}
+		
+		void deposit_for_all() {
+			
+		}
+		
+		void select_user() {
+			if (users.empty()) {
+				cout << "No users available" << endl;
+				return;
+			}
+			bool all_selected = true;
+			for (auto& user: users) {
+				if (!user.get_selected()) {
+					all_selected = false;
+					break;
+				}
+			}
+			
+			if (all_selected) {
+				cout << "All users are already selected" << endl;
+				return;
+			}
+			int random_index;
+			do {
+				random_index = rand() % users.size();
+			} while(users[random_index].get_selected());
+			
+			users[random_index].mark_selected();
+			users[random_index].print_user();
+		}
 };
 
 
 int main() {
-	cout << (0 && 1) << endl;
+//	cout << (0 && 1) << endl;
 	Comittee com;
 	int choice;
 	do {
@@ -130,7 +165,9 @@ int main() {
 				"[2]. Add Users\n"
 				"[3]. Print Comittee\n"
 				"[4]. Display Users\n"
-				"[5]. Exit" << endl;
+				"[5]. Select Random User\n"
+				"[6]. Select Random User\n"
+				"[8]. Exit" << endl;
 		cin >> choice;
 
 		switch (choice) {
@@ -147,12 +184,15 @@ int main() {
 				com.display_users();
 				break;
 			case 5:
+				com.select_user();
+				break;
+			case 8:
 				cout << "Exiting ...\n" << endl;
 				break;
 			default:
 				cout << "invalid input" << endl;
 		}
-	} while (choice != 5);
+	} while (choice != 8);
 
 	system("pause");
 	return 0;
