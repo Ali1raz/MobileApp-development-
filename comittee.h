@@ -162,14 +162,14 @@ class Comittee {
                 << installments_completed << "\n"
                 << current_installment << "\n";
             cf.close();
-            cout << "Comittee details saved" << endl;
+//            cout << "Comittee details saved" << endl;
 //            system("notepad comittee_details.txt");
 		}
 		
 		void load_comittee_details() {
 			ifstream cf(COMITTEE_FILE);
 			if(!cf) {
-				cout << "No saved committee" << endl;
+//				cout << "No saved committee" << endl;
 				return;
 			}
 			cf  >> comittee_created
@@ -180,7 +180,7 @@ class Comittee {
 				>> installments_completed
 				>> current_installment;
 			cf.close();
-			cout << "Comittee details loaded from fle" << endl;
+			cout << "Loaded Comittee details from file ..." << endl;
 		}
 		
 		void save_user_details() {
@@ -198,13 +198,13 @@ class Comittee {
 					<< user.get_selected() << "\n";
 			}
 			uf.close();
-			cout << "User details saved" << endl;
+//			cout << "User details saved" << endl;
 		}
 		
 		void load_user_details() {
 			ifstream uf(USER_FILE);
 			if (!uf) {
-				cout << "No saved user details" << endl;
+//				cout << "No saved user details" << endl;
 				return;
 			}
 			int userCount;
@@ -229,7 +229,7 @@ class Comittee {
 	            users.push_back(user);
 			}
 			uf.close();
-			cout << "User details load from file" << endl;
+			cout << "Loaded user details from file" << endl;
 		}
 };
 

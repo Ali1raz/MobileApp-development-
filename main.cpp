@@ -17,12 +17,12 @@ int main() {
 	Comittee com;
 	int choice;
 	do {
-		cout << "[1]. Create comittee\n"
-				"[2]. Add Users\n"
-				"[3]. Print Comittee\n"
-				"[4]. Display Users\n"
-				"[5]. Deposite Installments\n"
-				"[6]. Exit" << endl;
+		cout << "[1]: Create comittee\n"
+				"[2]: Add Users\n"
+				"[3]: Print Comittee\n"
+				"[4]: Display Users\n"
+				"[5]: Deposite Installments\n"
+				"[6]: Exit" << endl;
 		cout << "Enter choice<int>: ";
 		cin >> choice;
 
@@ -50,7 +50,7 @@ int main() {
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "\nInvalid input" << endl;
 		}
-	} while (choice != 8);
+	} while (choice != 6);
 
 	system("pause");
 	return 0;

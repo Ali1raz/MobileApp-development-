@@ -1,5 +1,6 @@
 #ifndef HEADER_H
 #define HEADER_H
+#include <iostream>
 
 int input_int(string prompt) { // not my code
 	int num;
