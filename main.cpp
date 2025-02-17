@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
+#include <fstream>
 
 using namespace std;
 #include "header.h"
@@ -62,6 +63,13 @@ class User {
 		void mark_selected () {
 			is_selected = true;
 		}
+		
+		void set_data(int _id, double dep, double rec, bool selected) {
+	        id = _id;
+	        total_deposited = dep;
+	        total_received = rec;
+	        is_selected = selected;
+	    }
 };
 int User::idCounter = 0;
 
@@ -76,7 +84,9 @@ class Comittee {
 		int installments_completed;
 	public:
 		Comittee(): balance(0.0), comittee_created(false), current_installment(0), installments_completed(0),
-			total_duration(0), installments_number(0) {}
+			total_duration(0), installments_number(0) {
+				load_comittee_details();
+			}
 
 		void add_details() {
 			if (!comittee_created) {
@@ -88,6 +98,7 @@ class Comittee {
 				cout << "total Price will be: " << installments_number * installment_price << endl;
 				cout << "\nComittee created!" << endl;
 				comittee_created = true;
+				save_comittee_details();
 				return;
 			}
 			cout << "Comittee already created!" << endl;
@@ -198,6 +209,41 @@ class Comittee {
 			users[random_index].add_receieved(balance);
 			cout << users[random_index].get_name() << " has received the balance: " << balance << endl;
 			balance =0;
+		}
+		
+		void save_comittee_details() {
+			ofstream cf("comittee_details.txt");
+			if(!cf) {
+				cout << "Error opening committee file" << endl;
+				return;
+			}
+			cf  << comittee_created << "\n"
+            	<< total_duration << "\n"
+                << installments_number << "\n"
+                << installment_price << "\n"
+                << balance << "\n"
+                << installments_completed << "\n"
+                << current_installment << "\n";
+            cf.close();
+            cout << "Comittee details saved" << endl;
+//            system("notepad comittee_details.txt");
+		}
+		
+		void load_comittee_details() {
+			ifstream cf("comittee_details.txt");
+			if(!cf) {
+				cout << "No saved committee" << endl;
+				return;
+			}
+			cf  >> comittee_created
+				>> total_duration
+				>> installments_number
+				>> installment_price
+				>> balance
+				>> installments_completed
+				>> current_installment;
+			cf.close();
+			cout << "Comittee details loaded from fle" << endl;
 		}
 };
 
