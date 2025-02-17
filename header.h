@@ -1,7 +1,5 @@
 #ifndef HEADER_H
 #define HEADER_H
-#include <iostream>
-#include <limits>
 
 int input_int(string prompt) { // not my code
 	int num;
@@ -41,6 +39,16 @@ string input_string(string prompt) {
 		}
 		cout << "Field Required" << endl;
 	}
+}
+
+vector<string> split(const string&s, char d) {
+	vector<string> tokens;
+	string token;
+	istringstream tokenStream(s);
+	while(getline(tokenStream, token, d)) {
+		tokens.push_back(token);
+	}
+	return tokens;
 }
 
 #endif
