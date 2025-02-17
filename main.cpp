@@ -4,8 +4,10 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 
 using namespace std;
+#include "header.h"
 
 vector<string> split(const string&s, char d) {
 	vector<string> tokens;
@@ -26,9 +28,13 @@ class User {
 
 	public:
 		static int idCounter;
-		User(string n): is_selected(false) {
+		User(string n): is_selected(false), total_deposited(0), total_received(0) {
 			id = ++idCounter;
 			name = n;
+		}
+		
+		string get_name() {
+			return name;
 		}
 		
 		bool get_selected() {
@@ -63,53 +69,69 @@ class Comittee {
 		bool comittee_created;
 		vector<User> users;
 		double 	balance;
-		double installment;
+		double installment_price;
 		int total_duration;
 		int installments_number;
 		int current_installment;
 		int installments_completed;
 	public:
-		Comittee(): balance(0.0), current_installment(0), installments_completed(0),
+		Comittee(): balance(0.0), comittee_created(false), current_installment(0), installments_completed(0),
 			total_duration(0), installments_number(0) {}
 
 		void add_details() {
-			cout << "Adding Comittee datails:" << endl;
-			cout << "Enter total duration(months): ";
-			cin >> total_duration;
-			cout << "Enter total installments count: ";
-			cin >> installments_number;
-			
-			cout << "total Price will be: " << installments_number * total_duration << endl;
-			comittee_created = true;
+			if (!comittee_created) {
+				cout << "Adding Comittee datails:" << endl;
+				cout << "[NOTE]: Number of users and total duration must/will be equal!\n" << endl;
+				total_duration = input_int("Enter total duration(months): ");
+				installments_number = input_int("Enter total installments count: ");
+				installment_price = input_double("Enter Installment price(RS): ");
+				cout << "total Price will be: " << installments_number * installment_price << endl;
+				cout << "\nComittee created!" << endl;
+				comittee_created = true;
+				return;
+			}
+			cout << "Comittee already created!" << endl;
 		}
 
 		void add_users() {
-			if (comittee_created) {
-				if (users.size() >4) {
-					cout << "Comittee full(max 4 members)" << endl;
-					return;
-				}
-				cout << "Adding Users" << endl;
-				for (int i=0; i<4; i++) {
-					string name;
-					cout << "User[" << i+1 << "]" << endl;
-					cout << "Enter name: ";
-					cin.ignore();
-					getline(cin, name);
-					users.push_back(User(name));
-				}
-				cout << "----" << endl;	
-			} else {
+			if (!comittee_created) {
 				cout << "You need to add comittee details first" << endl;
+				return;
 			}
+			
+			if (!users.empty()) {
+				cout << "Users already added" << endl;
+				return;
+			}
+			cout << "Adding Users" << endl;
+			for (int i=0; i<total_duration; i++) {
+				string name;
+				cout << "User[" << i+1 << "/" << total_duration << "]" << endl;
+				
+				name = input_string("Enter name: ");
+				users.push_back(User(name));
+			}
+			cout << "----" << endl;	
 		}
+		
 
 		void display_status () {
+			if (!comittee_created) {
+				cout << "Comittee not created yet" << endl;
+				return;
+			}
+			int selected_users = 0;
+			for (auto& user: users) {
+				if (user.get_selected()) {
+					selected_users++;
+				}
+			}
 			cout << "\nComittee details:\n"
 			     << "Current Balance: " << balance << "\n"
 			     << "Total Duration: " << total_duration << "\n"
 			     << "Installments Completed: " << installments_completed << "/" << installments_number << "\n"
-			     << "Total Users: " << users.size() << endl;
+			     << "Total Users: " << users.size() << "\n"
+				 << "Total PayedOut Users: " << selected_users << endl;
 			cout << "----" << endl;
 		}
 
@@ -125,7 +147,29 @@ class Comittee {
 		}
 		
 		void deposit_for_all() {
+			if (users.empty()) {
+				cout << "No user available" << endl;
+				return;
+			}
+			if (!comittee_created) {
+				cout << "Comittee not created" << endl;
+				return;
+			}
 			
+			if (installments_completed == installments_number) {
+				cout << "Installments completed" << endl;
+				return;
+			}
+			for (auto &user: users) {
+				user.add_deposit(installment_price);
+				balance += installment_price;
+			}
+			installments_completed += 1;
+			current_installment += 1;
+			cout << "Installments complete: " << installments_completed << endl;
+			cout << "Total Installments: " << installments_number << endl;
+			cout << "Current Balance: " << balance << endl;
+			select_user();
 		}
 		
 		void select_user() {
@@ -151,7 +195,9 @@ class Comittee {
 			} while(users[random_index].get_selected());
 			
 			users[random_index].mark_selected();
-			users[random_index].print_user();
+			users[random_index].add_receieved(balance);
+			cout << users[random_index].get_name() << " has received the balance: " << balance << endl;
+			balance =0;
 		}
 };
 
@@ -165,9 +211,9 @@ int main() {
 				"[2]. Add Users\n"
 				"[3]. Print Comittee\n"
 				"[4]. Display Users\n"
-				"[5]. Select Random User\n"
-				"[6]. Select Random User\n"
+				"[5]. Deposite Installments\n"
 				"[8]. Exit" << endl;
+		cout << "Enter choice<int>: ";
 		cin >> choice;
 
 		switch (choice) {
@@ -184,13 +230,15 @@ int main() {
 				com.display_users();
 				break;
 			case 5:
-				com.select_user();
+				com.deposit_for_all();
 				break;
 			case 8:
 				cout << "Exiting ...\n" << endl;
 				break;
 			default:
-				cout << "invalid input" << endl;
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cout << "\nInvalid input" << endl;
 		}
 	} while (choice != 8);
 
