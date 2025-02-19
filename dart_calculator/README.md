@@ -4,6 +4,8 @@
 dart main.dart
 ```
 
+![Calculator in Dart](./Dart_Calc.png)
+
 # Variables:
 
 > \<datatype> \<variableName> = value;
