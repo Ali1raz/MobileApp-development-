@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'utils.dart';
 import 'comittee.dart';
 
 void main() {
@@ -15,8 +14,7 @@ void main() {
       "[6]: Exit",
     );
 
-    stdout.write("Enter choice<int>: ");
-    choice = int.parse(stdin.readLineSync()!);
+    choice = input_int("Enter choice<int>: ");
     switch (choice) {
       case 1:
         com.add_details();
@@ -37,7 +35,7 @@ void main() {
         print("Exiting ...");
         break;
       default:
-        print("invliad input, try again");
+        print("invliad input, try again [1-6]");
     }
   } while (choice != 6);
 }

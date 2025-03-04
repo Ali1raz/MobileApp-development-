@@ -175,10 +175,10 @@ class Comittee {
     installemts_number = int.parse(lines[2]);
     installment_price = double.parse(lines[3]);
     balance = double.parse(lines[4]);
-    installments_completed = int.parse(lines[6]);
-    current_installment = int.parse(lines[7]);
+    installments_completed = int.parse(lines[5]);
+    current_installment = int.parse(lines[6]);
 
-    print("loaded comittee details fro file");
+    print("\nloaded comittee details from file");
   }
 
   void save_user_details() {
@@ -227,5 +227,6 @@ class Comittee {
       user.set_details(id, name, dep, rec, sel);
       users.add(user);
     }
+    print("loaded user details from file");
   }
 }
