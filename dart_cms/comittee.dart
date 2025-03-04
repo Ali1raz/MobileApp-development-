@@ -4,15 +4,12 @@ import "dart:math";
 import "user.dart";
 import "utils.dart";
 
-final String COMITTEE_FILE = "COMITTEE_FILE.txt";
-final String USER_FILE = "USER_FILE.txt";
-
 class Comittee {
   bool comittee_created;
   double balance;
   double installment_price;
   int total_duration;
-  int installemts_number;
+  int installments_number;
   int current_installment;
   int installments_completed;
   List<User> users;
@@ -23,7 +20,7 @@ class Comittee {
       current_installment = 0,
       installments_completed = 0,
       total_duration = 0,
-      installemts_number = 0,
+      installments_number = 0,
       installment_price = 0,
       users = [] {
     load_comittee_details();
@@ -37,7 +34,7 @@ class Comittee {
         "[NOTE]: Number of users and installments count must/will be equal!\n",
       );
       total_duration = input_int("Enter total duration(months): ");
-      installemts_number = input_int("Enter total installments count: ");
+      installments_number = input_int("Enter total installments count: ");
       installment_price = input_double("Enter installment price: ");
       print("\nComittee created!");
       comittee_created = true;
@@ -53,15 +50,15 @@ class Comittee {
       return;
     }
 
-    if (!users.isEmpty) {
+    if (users.isNotEmpty) {
       print("Users already added");
       return;
     }
     print("Adding Users");
 
-    for (int i = 0; i < installemts_number; i++) {
+    for (int i = 0; i < installments_number; i++) {
       String name = input_string(
-        "User[${i + 1}/$installemts_number] - Enter name: ",
+        "User[${i + 1}/$installments_number] - Enter name: ",
       );
       users.add(User(name));
     }
@@ -104,18 +101,20 @@ class Comittee {
       print("No Comittee added!");
       return;
     }
-    if (installments_completed == installemts_number) {
+    if (installments_completed == installments_number) {
       print("Installments Completed already!");
       return;
     }
     for (var user in users) {
       user.add_deposit(installment_price);
-      balance += installment_price;
     }
+    balance += (users.length * installment_price);
     installments_completed += 1;
     current_installment += 1;
+
+    print("Deposited for all users");
     print("Installments Completed: $installments_completed");
-    print("Total Installments: $installemts_number");
+    print("Total Installments: $installments_number");
     print("Current Comittee Balance: $balance");
     select_user();
     save_comittee_details();
@@ -140,7 +139,7 @@ class Comittee {
 
     users[random_index].mark_selected();
     users[random_index].add_received(balance);
-    print("${users[random_index].name} has received balance: $balance}");
+    print("${users[random_index].name} has received balance: $balance");
     balance = 0.0;
     save_comittee_details();
     save_user_details();
@@ -150,7 +149,7 @@ class Comittee {
     File cf = File(COMITTEE_FILE);
     try {
       cf.writeAsStringSync(
-        "$comittee_created\n$total_duration\n$installemts_number\n"
+        "$comittee_created\n$total_duration\n$installments_number\n"
         "$installment_price\n$balance\n$installments_completed\n"
         "$current_installment\n",
       );
@@ -172,7 +171,7 @@ class Comittee {
     }
     comittee_created = lines[0] == "true";
     total_duration = int.parse(lines[1]);
-    installemts_number = int.parse(lines[2]);
+    installments_number = int.parse(lines[2]);
     installment_price = double.parse(lines[3]);
     balance = double.parse(lines[4]);
     installments_completed = int.parse(lines[5]);
