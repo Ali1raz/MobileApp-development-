@@ -1,5 +1,8 @@
 # Comittee Management System in dart using OOP
 
+## References:
+[chatgpt](https://chatgpt.com/share/67c665a7-b8a4-800e-926c-809d8341fd22)
+
 ## Getting Started:
 
 ```bash
@@ -25,3 +28,8 @@ docs: [file handling in dart](https://dart-tutorial.com/file-handling-in-dart/wr
 <img src="./ASSETS/menu_3.png" />
 <img src="./ASSETS/menu_4.png" />
 </div>
+
+# chatgpt
+
+[https://chatgpt.com/share/67c665a7-b8a4-800e-926c-809d8341fd22](https://chatgpt.com/share/67c665a7-b8a4-800e-926c-809d8341fd22)
+
