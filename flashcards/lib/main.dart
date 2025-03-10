@@ -53,7 +53,7 @@ class DeckSelectionScreen extends StatelessWidget {
   ];
 
   @override Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold( // for basic layout structure (e.g., AppBar, body, drawer).
       appBar: AppBar(title: Text("Choose a deck")),
       body: ListView.builder(
           itemCount: decks.length,
@@ -90,6 +90,7 @@ class FlashcardScreen extends StatefulWidget {
 class _FlashcardScreenState extends State<FlashcardScreen> {
   bool _showQuestion = true;
   int _currentCardIndex = 0;
+  int _score = 0;
 
   void _toggleCard() {
     setState(() {
@@ -104,20 +105,33 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     });
   }
 
+  void _handleAnswer(bool isCorrect) {
+    setState(() {
+      _score += isCorrect ? 10 : -10;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.deck.title),
-        leading: IconButton(
+        actions: [ // list of widgets on the right side in AppBar
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Center(child: Text("Current Score: $_score")),
+          )
+        ],
+        leading: IconButton( // icon on the left side in AppBar
             onPressed: () => Navigator.pop(context),
+            tooltip: 'Back',
             icon: Icon(Icons.arrow_back)),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
+            GestureDetector( // detects taps, swipes
               onTap: _toggleCard,
               child: Card(
                 elevation: 8,
@@ -137,8 +151,19 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            ElevatedButton(onPressed: _nextCard, child: const Text("next ")),
+            const SizedBox(height: 30), // box with a fixed width and/or height
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(onPressed: () => _handleAnswer(false),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text("Incorrect"),
+                ),
+                ElevatedButton(onPressed: () => _handleAnswer(true),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: const Text("Correct"))
+              ],
+            ),
+            ElevatedButton(onPressed: _nextCard, child: const Text("Next")),
           ],
         ),
       ),
