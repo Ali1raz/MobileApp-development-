@@ -22,15 +22,20 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
 
   void _nextCard() {
     setState(() {
-      _currentCardIndex = (_currentCardIndex+1) % widget.deck.cards.length;
+      _currentCardIndex = (_currentCardIndex + 1) % widget.deck.cards.length;
       _showQuestion = true;
     });
   }
 
   void _handleAnswer(bool isCorrect) {
     setState(() {
-      _score += isCorrect ? 10 : -5;
+      if (isCorrect) {
+        _score += 10;
+      } else {
+        _score = _score - 5 < 0 ? 0 : _score - 5;
+      }
     });
+
   }
 
   @override
@@ -45,8 +50,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
           )
         ],
         leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back)),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: Center(
         child: Column(
@@ -56,15 +62,18 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               onTap: _toggleCard,
               child: Card(
                 elevation: 8,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Container(
                   width: 300,
                   height: 200,
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   child: Center(
                     child: Text(
-                      _showQuestion ? widget.deck.cards[_currentCardIndex].question:
-                      widget.deck.cards[_currentCardIndex].answer,
+                      _showQuestion
+                          ? widget.deck.cards[_currentCardIndex].question
+                          : widget.deck.cards[_currentCardIndex].answer,
                       style: const TextStyle(fontSize: 20),
                       textAlign: TextAlign.center,
                     ),
@@ -73,18 +82,35 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(onPressed: () => _handleAnswer(false),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text("Incorrect"),
-                ),
-                ElevatedButton(onPressed: () => _handleAnswer(true),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: const Text("Correct"))
-              ],
-            ),
-            ElevatedButton(onPressed: _nextCard, child: const Text("Next")),
+            // Show "Correct" and "Incorrect" buttons only if answer is showing.
+            if (!_showQuestion)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _handleAnswer(false);
+                      _nextCard();
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text("Incorrect"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _handleAnswer(true);
+                      _nextCard();
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: const Text("Correct"),
+                  ),
+                ],
+              )
+            else
+            // When the question is showing, allow the user to tap to reveal the answer.
+              ElevatedButton(
+                onPressed: _toggleCard,
+                child: const Text("Show Answer"),
+              ),
           ],
         ),
       ),
