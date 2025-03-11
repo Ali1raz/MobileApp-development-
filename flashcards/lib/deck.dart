@@ -1,4 +1,4 @@
-import './flashcard.dart';
+import 'flashcard.dart';
 
 class Deck {
   final String title;

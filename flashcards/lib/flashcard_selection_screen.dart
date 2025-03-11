@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './deck.dart';
+import 'deck.dart';
 
 class FlashcardScreen extends StatefulWidget {
   final Deck deck;
@@ -21,8 +21,19 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
   }
 
   void _nextCard() {
+    if (widget.deck.cards.isEmpty) return;
     setState(() {
-      _currentCardIndex = (_currentCardIndex + 1) % widget.deck.cards.length;
+      _currentCardIndex = ((_currentCardIndex + 1) % widget.deck.cards.length).toInt();
+      _showQuestion = true;
+    });
+  }
+
+  void _prevCard() {
+    if (widget.deck.cards.isEmpty) return;
+    setState(() {
+      _currentCardIndex = (_currentCardIndex == 0)
+          ? widget.deck.cards.length - 1
+          : _currentCardIndex - 1;
       _showQuestion = true;
     });
   }
@@ -35,7 +46,52 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         _score = _score - 5 < 0 ? 0 : _score - 5;
       }
     });
+  }
 
+  Widget navigationControls(BuildContext context) {
+    // media query
+    final double width = MediaQuery.of(context).size.width;
+    if (width > 600) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+            onPressed: _prevCard,
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
+            ),
+            child: const Text("Prev"),
+          ),
+          ElevatedButton(
+            onPressed: _nextCard,
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
+            ),
+            child: const Text("Next"),
+          ),
+        ],
+      );
+    } else {
+      // Mobile: use a column.
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: _prevCard,
+            child: const Text("Prev"),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: _nextCard,
+            child: const Text("Next"),
+          ),
+        ],
+      );
+    }
   }
 
   @override
@@ -58,6 +114,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // The flashcard
             GestureDetector(
               onTap: _toggleCard,
               child: Card(
@@ -68,7 +125,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                 child: Container(
                   width: 300,
                   height: 200,
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 20, horizontal: 20),
                   child: Center(
                     child: Text(
                       _showQuestion
@@ -82,8 +140,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            // Show "Correct" and "Incorrect" buttons only if answer is showing.
-            if (!_showQuestion)
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -92,7 +149,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                       _handleAnswer(false);
                       _nextCard();
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     child: const Text("Incorrect"),
                   ),
                   ElevatedButton(
@@ -100,17 +158,15 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                       _handleAnswer(true);
                       _nextCard();
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green, ),
                     child: const Text("Correct"),
                   ),
                 ],
-              )
-            else
-            // When the question is showing, allow the user to tap to reveal the answer.
-              ElevatedButton(
-                onPressed: _toggleCard,
-                child: const Text("Show Answer"),
               ),
+            const SizedBox(height: 30),
+            // Navigation controls: Prev and Next buttons
+            navigationControls(context),
           ],
         ),
       ),
