@@ -1,5 +1,3 @@
-markdown
-
 # Flashcard App
 
 A Flutter-based application for creating and studying flashcards with multiple decks, score tracking, and smooth animations. Built to demonstrate core Flutter concepts like state management, navigation, and responsive design.
@@ -61,23 +59,6 @@ flutter run
 - **Provider**: State management for app-wide data (decks, scores).
 - **AnimatedSwitcher**: Smooth transitions for card flips.
 - **LayoutBuilder**: Responsive design handling.
-
----
-
-## Project Structure
-
-lib/
-├── main.dart # App entry point
-├── models/ # Data classes
-│ ├── deck.dart # Deck model
-│ └── flashcard.dart # Flashcard model
-├── screens/ # Full-page UIs
-│ ├── add_flashcard_screen.dart # Form for new cards
-│ ├── deck_selection_screen.dart # Deck list
-│ └── flashcard_screen.dart # Study interface
-└── widgets/ # Reusable components
-├── flashcard_widget.dart # Animated card
-└── navigation_controls.dart # Responsive buttons
 
 ---
 
