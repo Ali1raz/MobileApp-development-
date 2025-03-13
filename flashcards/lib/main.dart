@@ -1,14 +1,20 @@
+import 'models/flashcard_provider.dart';
+import 'screens/add_card_screen.dart';
+import 'screens/deck_screen.dart';
+import 'screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'deck_selection_screen.dart';
-import 'deck_state.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() => runApp(
-  ChangeNotifierProvider(
-    create: (_) => DeckState(),
-    child: const MyApp(),
-  ),
-);
+void main() async {
+  await Hive.initFlutter();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => FlashcardProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,17 +22,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "FlashCards App",
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[100],
+        primarySwatch: Colors.deepPurple,
+        fontFamily: "Lato",
         textTheme: const TextTheme(
-          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(fontSize: 16),
         ),
       ),
-      home: const DeckSelectionScreen(),
-      debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomeScreen(),
+          '/deck': (context) => const DeckScreen(),
+          '/add-card': (context) => const AddCardScreen(),
+        }
     );
   }
 }
