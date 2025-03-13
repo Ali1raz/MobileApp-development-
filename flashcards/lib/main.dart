@@ -1,3 +1,5 @@
+import 'package:flashcards/providers/theme_provider.dart';
+
 import 'models/flashcard_provider.dart';
 import 'screens/add_card_screen.dart';
 import 'screens/deck_screen.dart';
@@ -9,8 +11,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   await Hive.initFlutter();
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => FlashcardProvider(),
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) => FlashcardProvider()),
+      ChangeNotifierProvider(create: (_) => ThemeProvider())
+    ],
       child: const MyApp(),
     ),
   );

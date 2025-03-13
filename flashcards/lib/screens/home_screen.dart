@@ -1,4 +1,5 @@
 import 'package:flashcards/models/flashcard_provider.dart';
+import 'package:flashcards/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,9 +9,21 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<FlashcardProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Select a deck"),
+        actions: [
+          IconButton(
+              icon: Icon(
+                themeProvider.isDarkMode
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined
+              ),
+            onPressed: () => themeProvider.toggleTheme(),
+          )
+        ],
       ),
       body: ListView.builder(
         itemCount: provider.decks.length,
