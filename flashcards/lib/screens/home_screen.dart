@@ -18,6 +18,8 @@ class HomeScreen extends StatelessWidget {
           final deck = provider.decks[index];
           return ListTile(
             title: Text(deck.name),
+            subtitle: Text('Total Cards: ${deck.cards.length}'),
+            trailing: Text('correct: ${deck.correctCount}/${deck.cards.length}'),
             onTap: () {
               provider.setCurrentDeck(deck);
               Navigator.pushNamed(context, '/deck');

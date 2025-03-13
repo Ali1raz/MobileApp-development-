@@ -32,6 +32,12 @@ class _DeckScreenState extends State<DeckScreen> {
       ? const Center(child: Text("No cards in this deck"))
       : Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text("Answered?: ${deck.cards[_currentPage].isAnswered}")
+            ],
+          ) ,
           Expanded(
             child: PageView.builder(
               controller: _controller,
