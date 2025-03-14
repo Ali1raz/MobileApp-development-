@@ -70,6 +70,12 @@ class _DeckScreenState extends State<DeckScreen> {
                   onPressed: deck.cards[_currentPage].isAnswered ? null : () => provider.updateScore(_currentPage, true),
                   child: Text("Correct"),
                 ),
+                ElevatedButton(
+                  onPressed: deck.cards[_currentPage].isAnswered
+                      ? () => provider.resetCard(_currentPage)
+                      : null,
+                  child: const Text("Reset Card"),
+                ),
               ],
             )
           ),

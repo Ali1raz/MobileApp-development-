@@ -44,6 +44,18 @@ class FlashcardProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void resetCard(int index) {
+    if (_currentDeck == null || index < 0 || index >= _currentDeck!.cards.length) return;
+    final card = _currentDeck!.cards[index];
+    if (card.isAnswered) {
+      card.isAnswered = false;
+      if (_currentDeck!.correctCount > 0) {
+        _currentDeck?.correctCount--;
+      }
+      notifyListeners();
+    }
+  }
+
   void updateScore(int cardIndex, bool isCorrect) {
     if (_currentDeck == null) return;
     final card = _currentDeck!.cards[cardIndex];
