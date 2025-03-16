@@ -64,15 +64,17 @@ flutter run
 
 ## Screenshots
 
-| Deck Selection                        | Add Flashcard                      | Cards                         |
-| ------------------------------------- | ---------------------------------- | ----------------------------- |
-| ![Deck Screen](screenshots/img_1.png) | ![Add Card](screenshots/img_2.png) | ![cards](screenshots/img.png) |
+| Deck Selection                        | Add Flashcard                      | Cards                           |
+|---------------------------------------|------------------------------------|---------------------------------|
+| ![Deck Screen](screenshots/img_3.png) | ![Add Card](screenshots/img_5.png) | ![cards](screenshots/img_4.png) |
+
+![Deck Screen](screenshots/img_6.png)
+
+![Deck Screen](screenshots/img_7.png)
 
 ---
 
 ## Demo Video
-
-[Watch a demo here](screenshots/Recording.gif).
 
 ![Deck Screen](screenshots/Recording.gif)
 
