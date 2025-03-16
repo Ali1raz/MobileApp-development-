@@ -11,7 +11,7 @@ A Flutter-based application for creating and studying flashcards with multiple d
 - **User-Created Flashcards**: Add new cards with validation for empty inputs.
 - **Smooth Animations**: Card flip effect using `AnimatedSwitcher` and `RotationTransition`.
 - **Responsive Design**: Adapts layout for phones and tablets.
-- **State Management**: Uses `Provider` and `ChangeNotifier` for app-wide state.
+- **State Management**: Uses `riverpod` for app-wide state.
 - **Clean Architecture**: Separates logic into `models`, `screens`, and `widgets`.
 
 ---
@@ -35,18 +35,14 @@ flutter run
 ## Usage
 
 1. **Home Screen**:
-
    - Tap a deck to start studying.
-   - Use the floating "+" button to add new flashcards.
 
-2. **Study Mode**:
-
+2. **Deck page**:
+   - Use the `Add card` button to add new flashcards. 
    - Tap the card to flip between question and answer.
    - Press **Correct**/**Incorrect** to update your score.
-   - Navigate cards with **Prev**/**Next** buttons.
 
-3. **Create Flashcards**:
-   - Select a deck from the dropdown.
+4. **Create Flashcards**:
    - Fill in the question and answer fields (non-empty validation).
    - Save to add the card to the selected deck.
 
@@ -56,9 +52,8 @@ flutter run
 
 - **Flutter**: UI toolkit for building natively compiled apps.
 - **Dart**: Programming language optimized for client-side development.
-- **Provider**: State management for app-wide data (decks, scores).
+- **Riverpod**: State management for app-wide data (decks, scores).
 - **AnimatedSwitcher**: Smooth transitions for card flips.
-- **LayoutBuilder**: Responsive design handling.
 
 ---
 
