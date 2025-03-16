@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Flashcard {
   final String id;
@@ -20,28 +20,38 @@ class Deck {
   final List<Flashcard> cards;
   int correctCount;
 
-  Deck({required this.id, required this.name, required this.cards, this.correctCount = 0});
+  Deck({
+    required this.id,
+    required this.name,
+    required this.cards,
+    this.correctCount = 0
+  });
+
+  final flashcardProvider = StateNotifierProvider<FlashcardNotifier, List<Deck>>((ref) {
+    return FlashcardNotifier();
+  });
 }
 
-class FlashcardProvider with ChangeNotifier {
-  final List<Deck> _decks = [
+final flashcardProvider = StateNotifierProvider<FlashcardNotifier, List<Deck>>((ref) {
+  return FlashcardNotifier();
+});
+
+class FlashcardNotifier extends StateNotifier<List<Deck>> {
+  FlashcardNotifier(): super([
     Deck(id: "1", name: "Flutter Basics", cards: []),
     Deck(id: "2", name: "Dart Fundamentals", cards: []),
-  ];
-
-  List<Deck> get decks => _decks;
+  ]);
 
   Deck? _currentDeck;
   Deck? get currentDeck => _currentDeck;
 
   void setCurrentDeck(Deck deck) {
     _currentDeck = deck;
-    notifyListeners();
   }
 
   void addFlashcard(Flashcard flashcard) {
     _currentDeck?.cards.add(flashcard);
-    notifyListeners();
+    state = [...state]; // notify listeners by updating the state
   }
 
   void resetCard(int index) {
@@ -49,10 +59,7 @@ class FlashcardProvider with ChangeNotifier {
     final card = _currentDeck!.cards[index];
     if (card.isAnswered) {
       card.isAnswered = false;
-      if (_currentDeck!.correctCount > 0) {
-        _currentDeck?.correctCount--;
-      }
-      notifyListeners();
+      state = [...state];
     }
   }
 
@@ -63,10 +70,10 @@ class FlashcardProvider with ChangeNotifier {
       if (isCorrect) {
         _currentDeck?.correctCount++;
       } else {
-        _currentDeck?.correctCount;
+        _currentDeck?.correctCount--;
       }
       card.isAnswered = true;
-      notifyListeners();
+      state = [...state];
     }
   }
 }

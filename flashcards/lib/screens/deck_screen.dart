@@ -1,23 +1,24 @@
-import 'package:flashcards/models/flashcard_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import '../models/flashcard_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DeckScreen extends StatefulWidget {
+class DeckScreen extends ConsumerStatefulWidget {
   const DeckScreen({super.key});
 
   @override
-  State<DeckScreen> createState() => _DeckScreenState();
+  ConsumerState<DeckScreen> createState() => _DeckScreenState();
 }
 
-class _DeckScreenState extends State<DeckScreen> {
+class _DeckScreenState extends ConsumerState<DeckScreen> {
   final _controller = PageController();
   int _currentPage = 0;
   bool _isFront = true;
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<FlashcardProvider>(context);
-    final deck = provider.currentDeck!;
+    final deck = ref.watch(flashcardProvider).firstWhere(
+          (deck) => deck.id == ref.read(flashcardProvider.notifier).currentDeck?.id,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(deck.name),
@@ -45,6 +46,7 @@ class _DeckScreenState extends State<DeckScreen> {
               onPageChanged: (index) => setState(() { _currentPage = index; _isFront = true; }),
               itemBuilder: (context, index) {
                 final card = deck.cards[index];
+
                 return GestureDetector(
                   onTap: () => setState(() => _isFront = !_isFront),
                   child: AnimatedSwitcher(
@@ -63,16 +65,20 @@ class _DeckScreenState extends State<DeckScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: deck.cards[_currentPage].isAnswered ? null : () => provider.updateScore(_currentPage, false),
+                  onPressed: deck.cards[_currentPage].isAnswered
+                      ? null
+                      : () => ref.read(flashcardProvider.notifier).updateScore(_currentPage, false),
                   child: Text("Incorrect"),
                 ),
                 ElevatedButton(
-                  onPressed: deck.cards[_currentPage].isAnswered ? null : () => provider.updateScore(_currentPage, true),
+                  onPressed: deck.cards[_currentPage].isAnswered
+                      ? null
+                      : () => ref.read(flashcardProvider.notifier).updateScore(_currentPage, true),
                   child: Text("Correct"),
                 ),
                 ElevatedButton(
                   onPressed: deck.cards[_currentPage].isAnswered
-                      ? () => provider.resetCard(_currentPage)
+                      ? () => ref.read(flashcardProvider.notifier).resetCard(_currentPage)
                       : null,
                   child: const Text("Reset Card"),
                 ),

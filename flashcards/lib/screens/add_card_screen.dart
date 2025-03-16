@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/flashcard_provider.dart';
 
-class AddCardScreen extends StatefulWidget {
+class AddCardScreen extends ConsumerStatefulWidget {
   const AddCardScreen({super.key});
 
   @override
-  State<AddCardScreen> createState() => _AddCardScreenState();
+  ConsumerState<AddCardScreen> createState() => _AddCardScreenState();
 }
 
-class _AddCardScreenState extends State<AddCardScreen> {
+class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   final _formKey = GlobalKey<FormState>();
   final _questionController = TextEditingController();
   final _answerController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<FlashcardProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add Card"),
@@ -52,7 +50,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    provider.addFlashcard(
+                    ref.read(flashcardProvider.notifier).addFlashcard(
                       Flashcard(
                           id: DateTime.now().toString(),
                           question: _questionController.text,

@@ -1,50 +1,38 @@
-import 'package:flashcards/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'models/flashcard_provider.dart';
 import 'screens/add_card_screen.dart';
 import 'screens/deck_screen.dart';
 import 'screens/home_screen.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   await Hive.initFlutter();
   runApp(
-    MultiProvider(providers: [
-      ChangeNotifierProvider(create: (_) => FlashcardProvider()),
-      ChangeNotifierProvider(create: (_) => ThemeProvider())
-    ],
-      child: const MyApp(),
-    ),
+    const ProviderScope(
+      child: MyApp(),
+    )
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = ref.watch(themeProvider);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "FlashCards App",
-      theme: themeProvider.getTheme(),
-      // theme: ThemeData(
-      //   primarySwatch: Colors.deepPurple,
-      //   fontFamily: "Lato",
-      //   textTheme: const TextTheme(
-      //     headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-      //     bodyMedium: TextStyle(fontSize: 16),
-      //   ),
-      // ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const HomeScreen(),
-          '/deck': (context) => const DeckScreen(),
-          '/add-card': (context) => const AddCardScreen(),
-        }
+      theme: theme,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/deck': (context) => const DeckScreen(),
+        '/add-card': (context) => const AddCardScreen(),
+      }
     );
   }
 }

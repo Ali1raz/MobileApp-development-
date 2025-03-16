@@ -1,15 +1,15 @@
-import 'package:flashcards/models/flashcard_provider.dart';
-import 'package:flashcards/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/flashcard_provider.dart';
+import '../providers/theme_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<FlashcardProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final decks = ref.watch(flashcardProvider);
+    final themeNotifier = ref.read(themeProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -17,24 +17,25 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
               icon: Icon(
-                themeProvider.isDarkMode
-                    ? Icons.light_mode_outlined
-                    : Icons.dark_mode_outlined
+                ref.watch(themeProvider).brightness == Brightness.light
+                    ? Icons.dark_mode_outlined
+                    : Icons.light_mode_outlined
               ),
-            onPressed: () => themeProvider.toggleTheme(),
+            onPressed: () => themeNotifier.toggleTheme(),
           )
         ],
       ),
       body: ListView.builder(
-        itemCount: provider.decks.length,
+        itemCount: decks.length,
         itemBuilder: (context, index) {
-          final deck = provider.decks[index];
+          final deck = decks[index];
+
           return ListTile(
             title: Text(deck.name),
             subtitle: Text('Total Cards: ${deck.cards.length}'),
             trailing: Text('correct: ${deck.correctCount}/${deck.cards.length}'),
             onTap: () {
-              provider.setCurrentDeck(deck);
+              ref.read(flashcardProvider.notifier).setCurrentDeck(deck);
               Navigator.pushNamed(context, '/deck');
             },
           );
