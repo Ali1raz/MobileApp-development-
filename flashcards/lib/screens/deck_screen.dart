@@ -52,8 +52,8 @@ class _DeckScreenState extends ConsumerState<DeckScreen> {
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 50),
                     child: _isFront
-                    ? _buildCardSide(card.question, Colors.blue)
-                    : _buildCardSide(card.answer, Colors.green),
+                    ? _buildCardSide(card.question, Colors.blue, card)
+                    : _buildCardSide(card.answer, Colors.green, card),
                   ),
                 );
               },
@@ -93,21 +93,37 @@ class _DeckScreenState extends ConsumerState<DeckScreen> {
 }
 
 
-Widget _buildCardSide(String text, Color color) {
-  return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 20, color: Colors.white),
+Widget _buildCardSide(String text, Color color, Flashcard card) {
+  return Stack(
+    children: [
+      Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12),),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 20, color: Colors.white),
+            ),
           ),
         ),
-      )
+      ),
+      if (card.isAnswered)
+        Positioned(
+          top: 16,
+          right: 16,
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12),),
+                margin: EdgeInsets.all(8),
+                child: Text("Answered: ${card.isCorrect ? "Correct" : "Incorrect"}"),
+              ),
+            ],
+          )
+        )
+    ],
   );
 }

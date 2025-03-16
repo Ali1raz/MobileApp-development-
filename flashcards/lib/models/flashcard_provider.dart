@@ -5,12 +5,14 @@ class Flashcard {
   final String question;
   final String answer;
   bool isAnswered;
+  bool isCorrect;
 
   Flashcard({
     required this.id,
     required this.question,
     required this.answer,
-    this.isAnswered = false
+    this.isAnswered = false,
+    this.isCorrect = false
   });
 }
 
@@ -58,7 +60,14 @@ class FlashcardNotifier extends StateNotifier<List<Deck>> {
     if (_currentDeck == null || index < 0 || index >= _currentDeck!.cards.length) return;
     final card = _currentDeck!.cards[index];
     if (card.isAnswered) {
+      if (card.isCorrect) {
+        _currentDeck?.correctCount--;
+      } else {
+        _currentDeck?.correctCount++;
+      }
       card.isAnswered = false;
+      card.isCorrect = false;
+      // print("answered true");
       state = [...state];
     }
   }
@@ -67,6 +76,7 @@ class FlashcardNotifier extends StateNotifier<List<Deck>> {
     if (_currentDeck == null) return;
     final card = _currentDeck!.cards[cardIndex];
     if (!card.isAnswered) {
+      card.isCorrect = isCorrect;
       if (isCorrect) {
         _currentDeck?.correctCount++;
       } else {
