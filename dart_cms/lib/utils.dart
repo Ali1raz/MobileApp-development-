@@ -1,8 +1,5 @@
 import 'dart:io';
 
-final String COMITTEE_FILE = "COMITTEE_FILE.txt";
-final String USER_FILE = "USER_FILE.txt";
-
 int input_int(String prompt) {
   int? number;
   while (true) {
@@ -22,6 +19,7 @@ double input_double(String prompt) {
   while (true) {
     stdout.write(prompt);
     String? input = stdin.readLineSync();
+    print("input: $input");
     if (input != null) {
       double? number = double.tryParse(input);
       if (number != null) {

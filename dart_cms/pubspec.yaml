@@ -12,6 +12,7 @@ dependencies:
   drift: ^2.26.0
   sqlite3_flutter_libs: ^0.5.32
   path: ^1.9.1
+  sqlite3: ^2.7.5
 
 dev_dependencies:
   lints: ^5.0.0

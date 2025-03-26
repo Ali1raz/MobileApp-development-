@@ -1,8 +1,33 @@
-import 'utils.dart';
-import 'comittee.dart';
+import 'package:dart_cms/database.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:dart_cms/utils.dart';
+import 'package:dart_cms/comittee.dart';
 
 void main() {
-  Comittee com = Comittee();
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+
+  final dbHelper = DatabaseHelper();
+  dbHelper.initDB();
+  Comittee? com;
+  final existing = dbHelper.getComittee();
+  if (existing != null) {
+    com = existing;
+    com.users = dbHelper.getUsersByComittee(com.id!);
+  } else {
+    com = Comittee(
+      comittee_created: false,
+      balance: 0,
+      installment_price: 0,
+      total_duration: 0,
+      installments_number: 0,
+      current_installment: 0,
+      installments_completed: 0,
+      users: [],
+    );
+  }
+
   int choice;
   do {
     print(
@@ -33,6 +58,7 @@ void main() {
         break;
       case 6:
         print("Exiting ...");
+        dbHelper.close();
         break;
       default:
         print("invliad input, try again [1-6]");
