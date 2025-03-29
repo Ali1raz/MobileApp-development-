@@ -1,6 +1,6 @@
+import 'package:flashcards/database/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import 'screens/add_card_screen.dart';
 import 'screens/deck_screen.dart';
@@ -8,7 +8,8 @@ import 'screens/home_screen.dart';
 import 'providers/theme_provider.dart';
 
 void main() async {
-  await Hive.initFlutter();
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseHelper.instance.database;
   runApp(
     const ProviderScope(
       child: MyApp(),
