@@ -2,6 +2,19 @@
 
 A new Flutter project.
 
+
+# Screenshots:
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+  <img src="screenshots/Screenshot_20250402-111037.jpg" width="230"  alt="img"/>
+  <img src="screenshots/Screenshot_20250402-111040.jpg" width="230"  alt="img" />
+  <img src="screenshots/Screenshot_20250402-111140.jpg" width="230"  alt="img" />
+  <img src="screenshots/Screenshot_20250402-111219.jpg" width="230"  alt="img" />
+  <img src="screenshots/Screenshot_20250402-111158.jpg" width="230"  alt="img" />
+  <img src="screenshots/Screenshot_20250402-111206.jpg" width="230"  alt="img" />
+</div>
+
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
