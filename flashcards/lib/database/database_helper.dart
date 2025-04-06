@@ -92,4 +92,50 @@ class DatabaseHelper {
       whereArgs: [card.id],
     );
   }
+
+  Future<int> deleteCard(String cardId) async {
+    final db = await instance.database;
+    return await db.delete(
+      cardsTable,
+      where: 'id = ?',
+      whereArgs: [cardId],
+    );
+  }
+
+  Future<int> updateCardQuestionAnswer (Flashcard card) async {
+    final db = await instance.database;
+    return await db.update(
+      cardsTable,
+      {
+        'question': card.question,
+        'answer': card.answer,
+      },
+      where: 'id = ?',
+      whereArgs: [card.id],
+    );
+  }
+
+  Future<int> updateDeck(Deck deck) async {
+    final db = await instance.database;
+    return await db.update(
+      decksTable,
+      deck.toMap(),
+      where: 'id = ?',
+      whereArgs: [deck.id],
+    );
+  }
+
+  Future<int> deleteDeck(String deckId) async {
+    final db = await instance.database;
+    await db.delete(
+      cardsTable,
+      where: 'deckId = ?',
+      whereArgs: [deckId],
+    );
+    return await db.delete(
+      decksTable,
+      where: 'id = ?',
+      whereArgs: [deckId],
+    );
+  }
 }

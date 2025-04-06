@@ -1,4 +1,5 @@
 import 'package:flashcards/database/database_helper.dart';
+import 'package:flashcards/screens/add_deck_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,11 +30,12 @@ class MyApp extends ConsumerWidget {
       title: "FlashCards App",
       theme: theme,
       initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/deck': (context) => const DeckScreen(),
-        '/add-card': (context) => const AddCardScreen(),
-      }
+        routes: {
+          '/': (context) => const HomeScreen(),
+          '/deck': (context) => const DeckScreen(),
+          '/add-card': (context) => const AddCardScreen(),
+          '/add-deck': (context) => const AddDeckScreen(),
+        }
     );
   }
 }

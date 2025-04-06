@@ -1,3 +1,4 @@
+import 'package:flashcards/screens/deck_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/flashcard_provider.dart';
@@ -16,13 +17,13 @@ class HomeScreen extends ConsumerWidget {
         title: Text("Select a deck"),
         actions: [
           IconButton(
-              icon: Icon(
-                ref.watch(themeProvider).brightness == Brightness.light
-                    ? Icons.dark_mode_outlined
-                    : Icons.light_mode_outlined
-              ),
+            icon: Icon(
+              ref.watch(themeProvider).brightness == Brightness.light
+                  ? Icons.dark_mode_outlined
+                  : Icons.light_mode_outlined,
+            ),
             onPressed: () => themeNotifier.toggleTheme(),
-          )
+          ),
         ],
       ),
       body: ListView.builder(
@@ -33,13 +34,20 @@ class HomeScreen extends ConsumerWidget {
           return ListTile(
             title: Text(deck.name),
             subtitle: Text('Total Cards: ${deck.cards.length}'),
-            trailing: Text('correct: ${deck.correctCount}/${deck.cards.length}'),
+            trailing: Text(
+              'Correct: ${deck.correctCount}/${deck.cards.length}',
+            ),
             onTap: () {
               ref.read(flashcardProvider.notifier).setCurrentDeck(deck);
               Navigator.pushNamed(context, '/deck');
             },
+            onLongPress: () => showDeckOptionsModal(context, deck, ref),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/add-deck'),
+        child: const Icon(Icons.add),
       ),
     );
   }
