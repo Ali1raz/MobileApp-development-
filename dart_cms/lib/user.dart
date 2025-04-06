@@ -1,3 +1,5 @@
+import 'package:dart_cms/utils.dart';
+
 class User {
   int id;
   String name;
@@ -50,7 +52,7 @@ class User {
   }
 
   void print_user() {
-    print("\n----");
+    info("\n----");
     print(
       "id: $id, "
       "Name: $name\n"

@@ -3,6 +3,18 @@ in `lib/`, and example unit test in `test/`.
 
 # Comittee Management System in dart using OOP
 
+<div style="display: flex; flex-wrap:wrap; gap: 10px">
+    <img src="ASSETS/img.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_1.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_2.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_3.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_5.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_6.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_8.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_9.png" style="border: 2px solid orange;" />
+    <img src="ASSETS/img_2_1.png" style="border: 2px solid orange;" />
+</div>
+
 ## Getting Started:
 
 ```bash
@@ -19,12 +31,3 @@ dart run
 `input_string` takes input as long as user inputs empty input.
 
 ---
-
-> # Migration to SQLite
-
-## Database Integration:
-
-- SQLite – Lightweight, file-based, perfect for local apps.
-
-> `sqflite_common_ffi` [SQLite for Windows/Linux/macOS].
-> `path` [helps with file path].

@@ -1,15 +1,15 @@
 import 'package:dart_cms/database.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'package:dart_cms/utils.dart';
 import 'package:dart_cms/comittee.dart';
+import 'package:dart_cms/utils.dart';
 
 void main() {
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
+  clearConsole();
+  info("Welcome to the Comittee Management System");
 
   final dbHelper = DatabaseHelper();
   dbHelper.initDB();
+
   Comittee? com;
   final existing = dbHelper.getComittee();
   if (existing != null) {
@@ -32,11 +32,15 @@ void main() {
   do {
     print(
       "\n[1]: Create comittee\n"
-      "[2]: Add Users\n"
-      "[3]: Print Comittee\n"
-      "[4]: Display Users\n"
-      "[5]: Deposite Installments\n"
-      "[6]: Exit",
+      "[2]: Print Comittee\n"
+      "[3]: DELETE Comittee\n"
+      "[4]: Edit Comittee\n"
+      "[5]: Add Users\n"
+      "[6]: Display Users\n"
+      "[7]: Display User details\n"
+      "[8]: Edit a User\n"
+      "[9]: Deposite Installments\n"
+      "[99]: Exit",
     );
 
     choice = input_int("Enter choice<int>: ");
@@ -45,23 +49,35 @@ void main() {
         com.add_details();
         break;
       case 2:
-        com.add_users();
-        break;
-      case 3:
         com.display_comittee();
         break;
+      case 3:
+        com.delete_comittee();
+        break;
       case 4:
-        com.display_users();
+        com.edit_comittee();
         break;
       case 5:
-        com.deposit_for_all();
+        com.add_users();
         break;
       case 6:
-        print("Exiting ...");
+        com.display_users();
+        break;
+      case 7:
+        com.display_single_user();
+        break;
+      case 8:
+        com.edit_user();
+        break;
+      case 9:
+        com.deposit_for_all();
+        break;
+      case 99:
+        warning("Exiting ...");
         dbHelper.close();
         break;
       default:
-        print("invliad input, try again [1-6]");
+        warning("invliad input, try again [1-10] or [99] to exit");
     }
-  } while (choice != 6);
+  } while (choice != 99);
 }

@@ -1,5 +1,6 @@
 import 'package:dart_cms/comittee.dart';
 import 'package:dart_cms/user.dart';
+import 'package:dart_cms/utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:path/path.dart';
 import 'dart:io';
@@ -14,6 +15,7 @@ class DatabaseHelper {
     if (_db != null) {
       return _db!;
     }
+    print("[db]: Initializing database...");
     _db = initDB();
     return _db!;
   }
@@ -22,17 +24,18 @@ class DatabaseHelper {
     try {
       final dbPath = join(Directory.current.path, 'cms.db');
       final database = sqlite3.open(dbPath);
+      database.execute('PRAGMA foreign_keys = ON;');
       _createTables(database);
-
       return database;
     } catch (e) {
+      error("[db]: Database initialization failed: $e");
       rethrow;
     }
   }
 
   void _createTables(Database db) {
     db.execute('''
-      CREATE TABLE if not exists comittee (
+      create table if not exists comittee (
         id INTEGER primary key,
         balance REAL,
         installment_price REAL,
@@ -52,29 +55,32 @@ class DatabaseHelper {
         total_received real,
         is_selected integer,
         comittee_id integer,
-        foreign key(comittee_id) references comittee(id)
+        foreign key(comittee_id) references comittee(id) on delete cascade
       )
     ''');
   }
 
   void close() {
     if (_db != null) {
+      warning("[db]: Closing database connection...");
       _db!.dispose();
       _db = null;
+      warning("[db]: Database connection closed.");
     }
   }
 
   int insertComittee(Comittee c) {
+    info("[db]: Inserting comittee details...");
     try {
       final db_ = db;
 
       final stmt = db_.prepare('''
-        INSERT INTO comittee (
-          balance, installment_price, total_duration, 
-          installments_number, current_installment, 
-          installments_completed, comittee_created
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      ''');
+      insert into comittee (
+        balance, installment_price, total_duration, 
+        installments_number, current_installment, 
+        installments_completed, comittee_created
+      ) values (?, ?, ?, ?, ?, ?, ?)
+    ''');
 
       stmt.execute([
         c.balance,
@@ -83,13 +89,12 @@ class DatabaseHelper {
         c.installments_number,
         c.current_installment,
         c.installments_completed,
-        c.comittee_created,
+        c.comittee_created ? 1 : 0,
       ]);
 
       final id = db_.lastInsertRowId;
       stmt.dispose();
-
-      return id;
+      return id > 0 ? id : -1;
     } catch (e) {
       return -1;
     }
@@ -102,6 +107,7 @@ class DatabaseHelper {
     return Comittee.fromMap(result.first);
   }
 
+  /// will be used in FUTURE
   void updateComittee(Comittee com) {
     final db_ = db;
     final stmt = db_.prepare('''
@@ -123,12 +129,24 @@ class DatabaseHelper {
       com.installments_number,
       com.current_installment,
       com.installments_completed,
-      com.comittee_created,
+      com.comittee_created ? 1 : 0,
       com.id,
     ]);
 
     stmt.dispose();
   }
+
+  void deleteComittee(int id) {
+    warning("[db]: Deleting comittee with id: $id...");
+
+    final db_ = db;
+    final stmt = db_.prepare('DELETE FROM comittee WHERE id = ?');
+    stmt.execute([id]);
+    stmt.dispose();
+    success("[db]: Comittee deleted successfully.");
+  }
+
+  // user related methods ...
 
   int insertUser(User user) {
     final db_ = db;
@@ -136,7 +154,7 @@ class DatabaseHelper {
       insert into users (
         name, total_deposited, total_received, 
         is_selected, comittee_id
-      ) VALUES (?, ?, ?, ?, ?)
+      ) values (?, ?, ?, ?, ?)
     ''');
 
     stmt.execute([
@@ -154,11 +172,19 @@ class DatabaseHelper {
 
   List<User> getUsersByComittee(int cid) {
     final db_ = db;
-    final stmt = db_.prepare('select * from users where comittee_id = ?');
-    stmt.execute([cid]);
-    final result = stmt.select();
-    stmt.dispose();
-    return result.map((map) => User.fromMap(map)).toList();
+    try {
+      final stmt = db_.prepare('SELECT * FROM users WHERE comittee_id = ?');
+      final result = stmt.select([cid]);
+      stmt.dispose();
+      if (result.isEmpty) {
+        warning("[db]: No users found for comittee with id: $cid.");
+        return [];
+      }
+      return result.map((map) => User.fromMap(map)).toList();
+    } catch (e) {
+      error("[db]: Error fetching users for committee $cid: $e");
+      return [];
+    }
   }
 
   void updateUser(User user) {
@@ -183,5 +209,35 @@ class DatabaseHelper {
     ]);
 
     stmt.dispose();
+  }
+
+  User? getUser(int id) {
+    if (id < 0) {
+      error("[db]: Invalid user ID: $id.");
+      return null;
+    }
+    if (id == 0) {
+      error("[db]: User ID cannot be 0.");
+      return null;
+    }
+
+    final db_ = db;
+    final stmt = db_.prepare('Select * from users Where id = ?');
+    final result = stmt.select([id]);
+    stmt.dispose();
+    if (result.isEmpty) {
+      error("[db]: No user found with id: $id.");
+      return null;
+    }
+    return User.fromMap(result.first);
+  }
+
+  /// will be used in FUTURE
+  void deleteUser(int id) {
+    final db_ = db;
+    final stmt = db_.prepare('delete from users where id = ?');
+    stmt.execute([id]);
+    stmt.dispose();
+    success("[db]: User with id: $id deleted successfully.");
   }
 }
