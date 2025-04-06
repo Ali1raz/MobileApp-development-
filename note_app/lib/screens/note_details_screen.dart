@@ -5,6 +5,7 @@ import 'package:note_app/utils/priority.dart';
 
 class NoteDetailsScreen extends StatefulWidget {
   final Note? note;
+
   const NoteDetailsScreen({super.key, this.note});
 
   @override
@@ -90,7 +91,7 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                     decoration: InputDecoration(labelText: "Title"),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "no input :( (-_-) ";
+                        return "Input Required";
                       }
                       return null;
                     },
@@ -102,7 +103,7 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                     decoration: InputDecoration(labelText: "Description"),
                     validator: (value) {
                       if (value == null || value.isEmpty || value.length < 5) {
-                        return "value == null || value.isEmpty || value.length < 5";
+                        return "Value must be at least 5 characters";
                       }
                       return null;
                     },

@@ -1,5 +1,3 @@
-
-
 import 'package:note_app/utils/priority.dart';
 
 class Note {

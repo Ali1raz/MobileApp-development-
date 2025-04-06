@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:note_app/provider/theme-provider.dart';
 import 'package:note_app/screens/note_list_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => ThemeProvider(), child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -10,11 +14,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     return MaterialApp(
       title: "Notes App",
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.deepPurple),
-      home: NoteListScreen(),
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: Scaffold(body: NoteListScreen()),
     );
   }
 }

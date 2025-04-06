@@ -6,12 +6,12 @@ A new Flutter project.
 # Screenshots:
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <img src="screenshots/Screenshot_20250402-111037.jpg" width="230"  alt="img"/>
-  <img src="screenshots/Screenshot_20250402-111040.jpg" width="230"  alt="img" />
-  <img src="screenshots/Screenshot_20250402-111140.jpg" width="230"  alt="img" />
-  <img src="screenshots/Screenshot_20250402-111219.jpg" width="230"  alt="img" />
-  <img src="screenshots/Screenshot_20250402-111158.jpg" width="230"  alt="img" />
-  <img src="screenshots/Screenshot_20250402-111206.jpg" width="230"  alt="img" />
+  <img src="screenshots/img_1.jpg" width="230"  alt="img"/>
+  <img src="screenshots/img_2.jpg" width="230"  alt="img" />
+  <img src="screenshots/img_3.jpg" width="230"  alt="img" />
+  <img src="screenshots/img_4.jpg" width="230"  alt="img" />
+  <img src="screenshots/img_5.jpg" width="230"  alt="img" />
+  <img src="screenshots/img_6.jpg" width="230"  alt="img" />
 </div>
 
 

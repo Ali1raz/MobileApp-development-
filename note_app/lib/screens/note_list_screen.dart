@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/models/note.dart';
+import 'package:note_app/provider/theme-provider.dart';
 import 'package:note_app/screens/note_details_screen.dart';
 import 'package:note_app/utils/db_helper.dart';
+import 'package:provider/provider.dart';
 
 class NoteListScreen extends StatefulWidget {
   const NoteListScreen({super.key});
@@ -56,7 +58,7 @@ class _NoteListScreenState extends State<NoteListScreen> {
       itemCount: _noteCount,
       itemBuilder: (BuildContext context, int index) {
         return Card(
-          color: Colors.white,
+            color: Theme.of(context).cardColor,
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: _noteList![index].priority.color,
@@ -125,7 +127,17 @@ class _NoteListScreenState extends State<NoteListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Notes"), elevation: 8),
+      appBar: AppBar(
+          title: Text("Notes"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.brightness_6),
+              onPressed: () {
+                Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              },
+            ),
+          ]
+      ),
       body:
           (_noteList == null || _noteCount == 0)
               ? Center(child: Text("No Notes Available"))
