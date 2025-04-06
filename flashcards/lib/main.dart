@@ -11,11 +11,7 @@ import 'providers/theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseHelper.instance.database;
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    )
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -30,12 +26,12 @@ class MyApp extends ConsumerWidget {
       title: "FlashCards App",
       theme: theme,
       initialRoute: '/',
-        routes: {
-          '/': (context) => const HomeScreen(),
-          '/deck': (context) => const DeckScreen(),
-          '/add-card': (context) => const AddCardScreen(),
-          '/add-deck': (context) => const AddDeckScreen(),
-        }
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/deck': (context) => const DeckScreen(),
+        '/add-card': (context) => const AddCardScreen(),
+        '/add-deck': (context) => const AddDeckScreen(),
+      },
     );
   }
 }
