@@ -28,11 +28,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Colors.blueGrey,
           brightness: Brightness.dark,
         ),
       ),
@@ -42,14 +42,15 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: (settings) {
         if (settings.name == '/settings') {
           return MaterialPageRoute(
-            builder: (context) => SettingsPage(
-              isDarkMode: _themeMode == ThemeMode.dark,
-              onDarkModeChanged: _updateThemeMode,
-            ),
+            builder:
+                (context) => SettingsPage(
+                  isDarkMode: _themeMode == ThemeMode.dark,
+                  onDarkModeChanged: _updateThemeMode,
+                ),
           );
         }
         return MaterialPageRoute(
-          builder: (context) => MyHomePage(title: title),
+          builder: (context) => HomeScreen(title: title),
         );
       },
     );
