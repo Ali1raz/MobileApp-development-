@@ -2,6 +2,13 @@
 
 A new Flutter project.
 
+# ScreenShots 
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="screenshots/img_1.png" width="300" alt="img" />
+    <img src="screenshots/img_2.png" width="300" alt="img" />
+</div>
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
