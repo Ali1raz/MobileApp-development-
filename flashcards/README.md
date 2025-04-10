@@ -36,11 +36,20 @@
 ## Screenshots
 
 <div style="display: flex; flex-wrap:wrap; justify-content: space-evenly; gap: 10px">
-   <img src="./screenshots/img_3.png" width="200" />
-   <img src="./screenshots/img_4.png" width="200" />
-   <img src="./screenshots/img_5.png" width="200" />
-   <img src="./screenshots/img_6.png" width="200" />
-   <img src="./screenshots/img_7.png" width="200" />
+   <img alt="img" src="./screenshots/img_1.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_2.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_3.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_4.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_5.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_6.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_7.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_8.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_9.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_10.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_11.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_12.jpg" width="200" />
+   <img alt="img" src="./screenshots/img_13.jpg" width="200" />
+
 </div>
 
 ---
