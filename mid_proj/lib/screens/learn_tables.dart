@@ -24,7 +24,7 @@ class LearnTables extends StatelessWidget {
                 'Multiplication Table for $number',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              trailing: const Icon(Icons.arrow_forward_ios),
+              trailing: const Icon(Icons.arrow_forward_rounded),
               onTap: () {
                 Navigator.push(
                   context,
