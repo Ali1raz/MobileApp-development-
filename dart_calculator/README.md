@@ -4,21 +4,7 @@
 dart main.dart
 ```
 
-![Calculator in Dart](./Dart_Calc.png)
-
-# Variables:
-
-> \<datatype> \<variableName> = value;
-
-`int` e.g.: 3
-
-`String` e.g.: "Ali"
-
-`double` e.g.: 3.23
-
-`bool` e.g.: true/false.
-
-`dynamic` can have any value[different at runTime and compileTime] (not recommended).
+![Calculator in Dart](./image.png)
 
 ## String interpolation:
 
@@ -29,55 +15,30 @@ greeting = `$greeting Ali`; // good
 greeting = `${greeting.length} Ali`; // good
 ```
 
-## Mutability:
-
-`var` value type can be changed.
-
-`final` value type can't be changed. [runtime constant]
-
-`const` value type can't be changed. [compileTime constant]
+# Take double as input with error handling:
 
 ```dart
-int age = null; // bad
-int? age = null; // make int optional instead
-```
-
-```dart
-String name;
-name.length; // error
-name?.length; // ok, optional chaining.
-```
-
----
-
-## Control Flow:
-
-```dart
-if (condition1) {
-    // do this
-} else if (condition2) {
-    // do this...
-} else {
-// do this
+double input_double(String prompt) {
+  while (true) {
+    stdout.write(prompt);
+    String? input = stdin.readLineSync();
+    if (input != null) {
+      double? number = double.tryParse(input);
+      if (number != null) {
+        return number; // valid double
+      }
+    }
+    print("Invalid input. Please enter a valid number, e.g.<3> or <3.1>.");
+  }
 }
-
-
-// Null-coalescing operator: ??
-String? name = null;
-Stirng result = name ?? "No name"; // result = "No name"
-
-// Null-aware access operator
-name?.length;
 ```
 
-### Short-circuting: && and ||
+# Take Operator input with error handling:
 
 ```dart
-bool a = false;
-bool b = true;
-if (a && (b= false)) {
-    // a is false b won't be reassigned.
-    // so this wont run
+bool isValidOperator(String input) {
+  RegExp reg = RegExp(r'^[+\-*/]$'); // valid operators +, -, *, /
+
+  return reg.hasMatch(input);
 }
-print(b); // true
 ```
