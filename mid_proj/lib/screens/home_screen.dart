@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mid_proj/screens/learn_tables.dart';
-import 'package:mid_proj/screens/test_screen.dart';
-import 'package:mid_proj/screens/training_screen.dart';
+import 'package:mid_proj/utils/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -13,15 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> _routes = [
-    {
-      'icon': Icons.table_chart,
-      'label': 'Learn Tables',
-      'route': LearnTables(),
-    },
-    {'icon': Icons.calculate, 'label': 'Training', 'route': TrainingScreen()},
-    {'icon': Icons.edit, 'label': 'Start Test', 'route': TestScreen()},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           children:
-              _routes.map((route) {
+              routes.map((route) {
                 return ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
