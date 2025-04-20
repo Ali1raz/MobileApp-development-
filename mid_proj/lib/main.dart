@@ -21,7 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final String title = 'Multi';
+  final String title = 'Multiplication';
 
   @override
   Widget build(BuildContext context) {
