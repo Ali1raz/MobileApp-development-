@@ -5,9 +5,13 @@ A new Flutter project.
 # ScreenShots 
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <img src="screenshots/img.png" width="300" alt="img" />
     <img src="screenshots/img_1.png" width="300" alt="img" />
     <img src="screenshots/img_2.png" width="300" alt="img" />
     <img src="screenshots/img_3.png" width="300" alt="img" />
+    <img src="screenshots/img_4.png" width="300" alt="img" />
+    <img src="screenshots/img_5.png" width="300" alt="img" />
+    <img src="screenshots/img_6.png" width="300" alt="img" />
 </div>
 
 ## Getting Started
