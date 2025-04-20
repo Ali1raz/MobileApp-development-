@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mid_proj/screens/question_screen.dart';
 
 class TrainingScreen extends StatefulWidget {
   const TrainingScreen({super.key});
@@ -12,8 +13,8 @@ class TrainingScreenState extends State<TrainingScreen> {
   final TextEditingController min = TextEditingController(text: "1");
   final TextEditingController max = TextEditingController(text: "1000");
 
-  final operators = ['+', "-", "x", "/"];
-  final gameTypes = ['Test', 'True/False', 'Input'];
+  final operators = ['+', '-', '×', '÷'];
+  final gameTypes = ['Test', 'True / False', 'Input'];
   String selectedGameType = 'Input';
 
   void toggleOperators(String op) {
@@ -39,8 +40,8 @@ class TrainingScreenState extends State<TrainingScreen> {
     if (left < 0 ||
         right <= 0 ||
         left >= right ||
-        left > 1000 ||
-        right > 1000) {
+        left > 10000 ||
+        right > 10000) {
       return false;
     }
     return true;
@@ -73,7 +74,7 @@ class TrainingScreenState extends State<TrainingScreen> {
                 selected
                     ? Theme.of(context).colorScheme.inversePrimary
                     : Colors.grey[700],
-            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface,),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
           ),
           SizedBox(height: 8),
           Text(label),
@@ -139,19 +140,27 @@ class TrainingScreenState extends State<TrainingScreen> {
                   if (selectedOperations.isEmpty) {
                     _showMessage("Select operators first");
                   } else if (!isValidRange()) {
-                    _showMessage(
-                      "Enter valid Range, non-negative, min cant be greater than max, max = 1000",
-                    );
+                    _showMessage("Valid range: 0 ≤ min < max ≤ 10000");
                   } else {
-                    _showMessage(
-                      "Staring Game with: $selectedGameType, $selectedOperations, ${min.text}, ${max.text}",
-                    );
+                    if (selectedGameType == 'True / False') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => QuestionScreen(
+                                selectedOperations: selectedOperations,
+                                minValue: int.parse(min.text),
+                                maxValue: int.parse(max.text),
+                                difficultyLevel: 'Training',
+                              ),
+                        ),
+                      );
+                    } else {
+                      _showMessage("Coming soon!");
+                    }
                   }
                 },
-                child: Text(
-                  "Start game",
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: Text("Start game", style: TextStyle(fontSize: 18)),
               ),
             ),
             SizedBox(height: 18),
@@ -171,7 +180,10 @@ class TrainingScreenState extends State<TrainingScreen> {
           fillColor: Colors.black26,
           border: OutlineInputBorder(),
         ),
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 18,
+        ),
       ),
     );
   }
