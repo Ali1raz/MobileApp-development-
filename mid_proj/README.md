@@ -12,6 +12,8 @@ A new Flutter project.
     <img src="screenshots/img_4.png" width="300" alt="img" />
     <img src="screenshots/img_5.png" width="300" alt="img" />
     <img src="screenshots/img_6.png" width="300" alt="img" />
+    <img src="screenshots/img_7.png" width="300" alt="img" />
+    <img src="screenshots/img_8.png" width="300" alt="img" />
 </div>
 
 ## Getting Started
