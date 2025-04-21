@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mid_proj/db/db_helper.dart';
 import 'package:mid_proj/screens/question_screen.dart';
+import 'package:mid_proj/utils/constants.dart';
 
 class TestScreen extends StatefulWidget {
   const TestScreen({super.key});
@@ -9,27 +11,26 @@ class TestScreen extends StatefulWidget {
 }
 
 class _TestScreenState extends State<TestScreen> {
+
+  int totalCorrect = 0;
+  int totalWrong = 0;
+  int totalTests = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  void _loadStats() async {
+    final dbHelper = DatabaseHelper();
+    totalCorrect = await dbHelper.getTotalCorrect();
+    totalWrong = await dbHelper.getTotalWrong();
+    totalTests = await dbHelper.getTotalTests();
+    setState(() {});
+  }
+
   String selectedDifficulty = 'Easy';
-  final Map<String, Map<String, dynamic>> difficultySettings = {
-    'Easy': {
-      'min': 1,
-      'max': 10,
-      'ops': ['+', '-'],
-      'level': 'Easy',
-    },
-    'Medium': {
-      'min': 1,
-      'max': 50,
-      'ops': ['+', '-', '×', '÷'],
-      'level': 'Medium',
-    },
-    'Hard': {
-      'min': 1,
-      'max': 100,
-      'ops': ['+', '-', '×', '÷'],
-      'level': 'Hard',
-    },
-  };
 
   Widget _buildDifficultyOption(String label) {
     final isSelected = selectedDifficulty == label;
@@ -82,6 +83,20 @@ class _TestScreenState extends State<TestScreen> {
                 _buildDifficultyOption('Hard'),
               ],
             ),
+            const SizedBox(height: 20),
+            Text(
+              'Total Tests Completed: $totalTests',
+              style: const TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Total Correct Answers: $totalCorrect',
+              style: TextStyle(fontSize: 16, color: Colors.green),
+            ),
+            Text(
+              'Total Incorrect Answers: $totalWrong',
+              style: TextStyle(fontSize: 16, color: Colors.red),
+            ),
+            const Spacer(),
             const Spacer(),
             Center(
               child: ElevatedButton(

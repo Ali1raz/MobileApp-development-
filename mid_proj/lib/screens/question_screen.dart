@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mid_proj/db/db_helper.dart';
 import 'dart:math';
 
 import 'package:mid_proj/screens/result_screen.dart';
@@ -134,13 +135,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   void showResults() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => ResultScreen(correct: correctCount, wrong: wrongCount),
-      ),
-    );
+    DatabaseHelper().insertSession(correctCount, wrongCount).then((_) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultScreen(correct: correctCount, wrong: wrongCount),
+        ),
+      );
+    });
   }
 
   @override
