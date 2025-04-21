@@ -29,3 +29,7 @@ final Map<String, Map<String, dynamic>> difficultySettings = {
     'level': 'Hard',
   },
 };
+
+final List<String> operators = ['+', '-', '×', '÷'];
+
+final List<String> gameTypes = ['Test', 'True / False', 'Input'];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mid_proj/screens/question_screen.dart';
+import 'package:mid_proj/utils/constants.dart';
 
 class TrainingScreen extends StatefulWidget {
   const TrainingScreen({super.key});
@@ -13,9 +14,13 @@ class TrainingScreenState extends State<TrainingScreen> {
   final TextEditingController min = TextEditingController(text: "1");
   final TextEditingController max = TextEditingController(text: "1000");
 
-  final operators = ['+', '-', '×', '÷'];
-  final gameTypes = ['Test', 'True / False', 'Input'];
-  String selectedGameType = 'Input';
+  late String selectedGameType;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedGameType = gameTypes[1]; // Now it's valid!
+  }
 
   void toggleOperators(String op) {
     setState(() {
@@ -57,7 +62,7 @@ class TrainingScreenState extends State<TrainingScreen> {
             selected
                 ? Theme.of(context).colorScheme.inversePrimary
                 : Colors.grey[700],
-        child: Center(child: Text(op, style: TextStyle(fontSize: 28))),
+        child: Center(child: Text(op, style: const TextStyle(fontSize: 28))),
       ),
     );
   }
@@ -76,7 +81,7 @@ class TrainingScreenState extends State<TrainingScreen> {
                     : Colors.grey[700],
             child: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(label),
         ],
       ),
@@ -92,33 +97,33 @@ class TrainingScreenState extends State<TrainingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "What would you like to train?",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: operators.map((op) => _buildOperators(op)).toList(),
             ),
-            SizedBox(height: 32),
-            Text(
+            const SizedBox(height: 32),
+            const Text(
               "Difficulty max = 10000",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildNumberBox(min),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: Text("-", style: TextStyle(fontSize: 12)),
                 ),
                 _buildNumberBox(max),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -127,14 +132,17 @@ class TrainingScreenState extends State<TrainingScreen> {
                 _buildGameOption("Input", Icons.dialpad_rounded),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                   foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  shape: StadiumBorder(),
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 60,
+                    vertical: 16,
+                  ),
                 ),
                 onPressed: () {
                   if (selectedOperations.isEmpty) {
@@ -160,10 +168,10 @@ class TrainingScreenState extends State<TrainingScreen> {
                     }
                   }
                 },
-                child: Text("Start game", style: TextStyle(fontSize: 18)),
+                child: const Text("Start game", style: TextStyle(fontSize: 18)),
               ),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
           ],
         ),
       ),
@@ -175,7 +183,7 @@ class TrainingScreenState extends State<TrainingScreen> {
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           filled: true,
           fillColor: Colors.black26,
           border: OutlineInputBorder(),
@@ -192,7 +200,7 @@ class TrainingScreenState extends State<TrainingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         showCloseIcon: true,
       ),
     );
