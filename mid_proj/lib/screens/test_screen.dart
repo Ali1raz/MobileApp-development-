@@ -11,25 +11,6 @@ class TestScreen extends StatefulWidget {
 }
 
 class _TestScreenState extends State<TestScreen> {
-
-  int totalCorrect = 0;
-  int totalWrong = 0;
-  int totalTests = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStats();
-  }
-
-  void _loadStats() async {
-    final dbHelper = DatabaseHelper();
-    totalCorrect = await dbHelper.getTotalCorrect();
-    totalWrong = await dbHelper.getTotalWrong();
-    totalTests = await dbHelper.getTotalTests();
-    setState(() {});
-  }
-
   String selectedDifficulty = 'Easy';
 
   Widget _buildDifficultyOption(String label) {
@@ -83,20 +64,44 @@ class _TestScreenState extends State<TestScreen> {
                 _buildDifficultyOption('Hard'),
               ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              'Total Tests Completed: $totalTests',
-              style: const TextStyle(fontSize: 16),
+            const SizedBox(height: 40),
+            const Text(
+              "Statistics:",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text(
-              'Total Correct Answers: $totalCorrect',
-              style: TextStyle(fontSize: 16, color: Colors.green),
+            const SizedBox(height: 18),
+            FutureBuilder<Map<String, int>>(
+              future: DatabaseHelper().getTotalStats(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 4,
+                      padding: EdgeInsets.all(12),
+                    ),
+                  );
+                }
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return const Text('Error loading stats');
+                }
+                final stats = snapshot.data!;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Text('Total Tests: ${stats['totalTests']}'),
+                    Text(
+                      'Correct: ${stats['totalCorrect']}',
+                      style: TextStyle(color: Colors.green),
+                    ),
+                    Text(
+                      'Incorrect: ${stats['totalWrong']}',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                );
+              },
             ),
-            Text(
-              'Total Incorrect Answers: $totalWrong',
-              style: TextStyle(fontSize: 16, color: Colors.red),
-            ),
-            const Spacer(),
             const Spacer(),
             Center(
               child: ElevatedButton(

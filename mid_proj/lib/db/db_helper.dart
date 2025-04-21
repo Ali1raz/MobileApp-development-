@@ -30,8 +30,7 @@ class DatabaseHelper {
                 correct integer,
                 wrong integer,
                 timestamp integer
-            )''',
-        );
+            )''');
       },
       version: 1,
     );
@@ -46,25 +45,22 @@ class DatabaseHelper {
     });
   }
 
-  Future<int> getTotalCorrect() async {
+  Future<Map<String, int>> getTotalStats() async {
     final db = await database;
-    final result = await db.rawQuery(
+    final totalCorrectResult = await db.rawQuery(
       'SELECT SUM(correct) AS total FROM $tableName',
     );
-    return result.first['total'] as int? ?? 0;
-  }
-
-  Future<int> getTotalWrong() async {
-    final db = await database;
-    final result = await db.rawQuery(
+    final totalWrongResult = await db.rawQuery(
       'SELECT SUM(wrong) AS total FROM $tableName',
     );
-    return result.first['total'] as int? ?? 0;
-  }
+    final totalTestsResult = await db.rawQuery(
+      'SELECT COUNT(*) AS count FROM $tableName',
+    );
 
-  Future<int> getTotalTests() async {
-    final db = await database;
-    final result = await db.rawQuery('SELECT COUNT(*) AS count FROM $tableName');
-    return result.first['count'] as int? ?? 0;
+    return {
+      'totalCorrect': totalCorrectResult.first['total'] as int? ?? 0,
+      'totalWrong': totalWrongResult.first['total'] as int? ?? 0,
+      'totalTests': totalTestsResult.first['count'] as int? ?? 0,
+    };
   }
 }
