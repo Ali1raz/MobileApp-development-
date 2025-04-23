@@ -19,7 +19,7 @@ class TrainingScreenState extends State<TrainingScreen> {
   @override
   void initState() {
     super.initState();
-    selectedGameType = gameTypes[1]; // Now it's valid!
+    selectedGameType = gameTypes[1];
   }
 
   void toggleOperators(String op) {

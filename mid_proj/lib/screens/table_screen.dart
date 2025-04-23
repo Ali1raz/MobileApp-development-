@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mid_proj/screens/quiz/quiz_screen.dart';
 
 class TableScreen extends StatelessWidget {
   final int selectedNumber;
@@ -34,8 +35,57 @@ class TableScreen extends StatelessWidget {
         title: Text('Table of $selectedNumber'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
-        child: ListView(shrinkWrap: true, children: _buildTableRows(context)),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: ListView(
+                shrinkWrap: true,
+                children: _buildTableRows(context),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => QuizScreen(
+                              number: selectedNumber,
+                              quizType: 'multiplication',
+                            ),
+                      ),
+                    );
+                  },
+                  child: const Text('Start Multiply'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => QuizScreen(
+                              number: selectedNumber,
+                              quizType: 'division',
+                            ),
+                      ),
+                    );
+                  },
+                  child: const Text('Start Division'),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 28,)
+        ],
       ),
     );
   }
