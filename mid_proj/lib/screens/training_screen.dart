@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mid_proj/screens/input/input_training_screen.dart';
 import 'package:mid_proj/screens/question_screen.dart';
 import 'package:mid_proj/screens/training/training_test_screen.dart';
 import 'package:mid_proj/utils/constants.dart';
@@ -13,7 +14,7 @@ class TrainingScreen extends StatefulWidget {
 class TrainingScreenState extends State<TrainingScreen> {
   final List<String> selectedOperations = [];
   final TextEditingController min = TextEditingController(text: "1");
-  final TextEditingController max = TextEditingController(text: "1000");
+  final TextEditingController max = TextEditingController(text: "100");
 
   late String selectedGameType;
 
@@ -46,8 +47,8 @@ class TrainingScreenState extends State<TrainingScreen> {
     if (left < 0 ||
         right <= 0 ||
         left >= right ||
-        left > 10000 ||
-        right > 10000) {
+        left > 1000 ||
+        right > 1000) {
       return false;
     }
     return true;
@@ -109,7 +110,7 @@ class TrainingScreenState extends State<TrainingScreen> {
             ),
             const SizedBox(height: 32),
             const Text(
-              "Difficulty max = 10000",
+              "Difficulty max = 1000",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 12),
@@ -149,7 +150,7 @@ class TrainingScreenState extends State<TrainingScreen> {
                   if (selectedOperations.isEmpty) {
                     _showMessage("Select operators first");
                   } else if (!isValidRange()) {
-                    _showMessage("Valid range: 0 ≤ min < max ≤ 10000");
+                    _showMessage("Valid range: 0 ≤ min < max ≤ 1000");
                   } else {
                     if (selectedGameType == 'True / False') {
                       Navigator.push(
@@ -170,14 +171,24 @@ class TrainingScreenState extends State<TrainingScreen> {
                         MaterialPageRoute(
                           builder:
                               (context) => TrainingTestScreen(
-                            selectedOperations: selectedOperations,
-                            minValue: int.parse(min.text),
-                            maxValue: int.parse(max.text),
-                          ),
+                                selectedOperations: selectedOperations,
+                                minValue: int.parse(min.text),
+                                maxValue: int.parse(max.text),
+                              ),
                         ),
                       );
-                    } else {
-                      _showMessage("Coming soon!");
+                    } else if (selectedGameType == 'Input') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => InputTrainingScreen(
+                                selectedOperations: selectedOperations,
+                                minValue: int.parse(min.text),
+                                maxValue: int.parse(max.text),
+                              ),
+                        ),
+                      );
                     }
                   }
                 },
