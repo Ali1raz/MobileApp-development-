@@ -207,7 +207,7 @@ class _InputTrainingScreenState extends State<InputTrainingScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       onPressed: () => _handleNumberInput(number),
-      child: Text(number),
+      child: Text(number, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),),
     );
   }
 
@@ -263,7 +263,7 @@ class _InputTrainingScreenState extends State<InputTrainingScreen> {
                   Text(
                     currentQuestion['question'],
                     style: textTheme.headlineSmall?.copyWith(
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -271,7 +271,7 @@ class _InputTrainingScreenState extends State<InputTrainingScreen> {
                   Text(
                     userAnswer,
                     style: textTheme.displayMedium?.copyWith(
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

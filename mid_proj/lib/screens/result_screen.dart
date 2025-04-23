@@ -8,6 +8,8 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Test Results')),
       body: Padding(
@@ -17,7 +19,7 @@ class ResultScreen extends StatelessWidget {
           children: [
             _buildResultItem('Correct Answers', correct, Colors.green),
             const SizedBox(height: 20),
-            _buildResultItem('Wrong Answers', wrong, Colors.red),
+            _buildResultItem('Wrong Answers', wrong, colorScheme.error),
             const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

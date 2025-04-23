@@ -16,6 +16,8 @@ class InputQuizResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Results')),
       body: Padding(
@@ -25,8 +27,8 @@ class InputQuizResultScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildResultChip('Correct', correctCount, Colors.green),
-                _buildResultChip('Wrong', wrongCount, Colors.red),
+                _buildResultChip('Correct', correctCount, colorScheme.tertiary),
+                _buildResultChip('Wrong', wrongCount, colorScheme.error),
               ],
             ),
             Expanded(
@@ -68,7 +70,7 @@ class InputQuizResultScreen extends StatelessWidget {
 
   Widget _buildResultChip(String label, int count, Color color) {
     return Chip(
-      backgroundColor: color.withOpacity(0.2),
+      backgroundColor: color.withAlpha(70),
       label: Text(
         '$label: $count',
         style: TextStyle(color: color, fontWeight: FontWeight.bold),

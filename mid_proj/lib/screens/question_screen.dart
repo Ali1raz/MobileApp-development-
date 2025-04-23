@@ -147,6 +147,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text("Question")),
       body: SafeArea(
@@ -158,10 +160,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
               children: [
                 Text(
                   "${currentQuestionIndex + 1} / 10",
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                  ),
+                    color: colorScheme.onSurface.withAlpha(180),
+                  )
                 ),
               ],
             ),
@@ -196,9 +198,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => checkAnswer(false),
-                    child: const CircleAvatar(
+                    child:  CircleAvatar(
                       radius: 40,
-                      backgroundColor: Colors.red,
+                      backgroundColor: colorScheme.error,
+                      foregroundColor: colorScheme.onError,
                       child: Icon(Icons.close, size: 40),
                     ),
                   ),
@@ -207,6 +210,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     child: const CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
                       child: Icon(Icons.check, size: 40),
                     ),
                   ),

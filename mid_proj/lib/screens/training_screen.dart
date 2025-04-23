@@ -63,14 +63,22 @@ class TrainingScreenState extends State<TrainingScreen> {
         backgroundColor:
             selected
                 ? Theme.of(context).colorScheme.inversePrimary
-                : Colors.grey[700],
-        child: Center(child: Text(op, style: const TextStyle(fontSize: 28))),
+                : Theme.of(context).colorScheme.surfaceContainer,
+        child: Center(
+          child: Text(
+            op,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildGameOption(String label, IconData icon) {
     final selected = selectedGameType == label;
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => selectGame(label),
       child: Column(
@@ -79,12 +87,12 @@ class TrainingScreenState extends State<TrainingScreen> {
             radius: 30,
             backgroundColor:
                 selected
-                    ? Theme.of(context).colorScheme.inversePrimary
-                    : Colors.grey[700],
-            child: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
+                    ? colorScheme.inversePrimary
+                    : colorScheme.surfaceContainer,
+            child: Icon(icon, color: colorScheme.onSurface),
           ),
           const SizedBox(height: 8),
-          Text(label),
+          Text(label, style: TextStyle(color: colorScheme.onSurface)),
         ],
       ),
     );
@@ -92,16 +100,23 @@ class TrainingScreenState extends State<TrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Select difficulty'), centerTitle: true),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "What would you like to train?",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -109,9 +124,13 @@ class TrainingScreenState extends State<TrainingScreen> {
               children: operators.map((op) => _buildOperators(op)).toList(),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               "Difficulty max = 1000",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: textTheme.bodyLarge?.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -138,8 +157,8 @@ class TrainingScreenState extends State<TrainingScreen> {
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  backgroundColor: colorScheme.inversePrimary,
+                  foregroundColor: colorScheme.onSurface,
                   shape: const StadiumBorder(),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 60,
@@ -203,19 +222,17 @@ class TrainingScreenState extends State<TrainingScreen> {
   }
 
   Widget _buildNumberBox(TextEditingController controller) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.black26,
-          border: OutlineInputBorder(),
+          fillColor: colorScheme.surfaceVariant,
+          border: const OutlineInputBorder(),
         ),
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-          fontSize: 18,
-        ),
+        style: TextStyle(color: colorScheme.onSurface, fontSize: 18),
       ),
     );
   }

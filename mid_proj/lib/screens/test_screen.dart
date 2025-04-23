@@ -22,8 +22,8 @@ class _TestScreenState extends State<TestScreen> {
         decoration: BoxDecoration(
           color:
               isSelected
-                  ? Theme.of(context).colorScheme.inversePrimary
-                  : Colors.grey[900],
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(5),
         ),
         child: Text(
@@ -41,6 +41,7 @@ class _TestScreenState extends State<TestScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = difficultySettings[selectedDifficulty]!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Test Mode'), centerTitle: true),
@@ -75,9 +76,9 @@ class _TestScreenState extends State<TestScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: const CircularProgressIndicator(
+                    child:  CircularProgressIndicator(
                       strokeWidth: 4,
-                      padding: EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),color: colorScheme.primary,
                     ),
                   );
                 }
@@ -106,8 +107,8 @@ class _TestScreenState extends State<TestScreen> {
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   shape: StadiumBorder(),
                   padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
                 ),
