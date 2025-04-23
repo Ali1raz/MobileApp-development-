@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mid_proj/screens/question_screen.dart';
+import 'package:mid_proj/screens/training/training_test_screen.dart';
 import 'package:mid_proj/utils/constants.dart';
 
 class TrainingScreen extends StatefulWidget {
@@ -161,6 +162,18 @@ class TrainingScreenState extends State<TrainingScreen> {
                                 maxValue: int.parse(max.text),
                                 difficultyLevel: 'Training',
                               ),
+                        ),
+                      );
+                    } else if (selectedGameType == 'Test') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => TrainingTestScreen(
+                            selectedOperations: selectedOperations,
+                            minValue: int.parse(min.text),
+                            maxValue: int.parse(max.text),
+                          ),
                         ),
                       );
                     } else {

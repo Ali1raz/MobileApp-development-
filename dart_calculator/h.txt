@@ -1,0 +1,39 @@
+    1  whoami
+    2  sudo apt update
+    3  sudo apt upgrade -y
+    4  ls
+    5  cd ..
+    6  ls
+    7  cd mnt/
+    8  ls
+    9  cd d/
+   10  ls
+   11  git config user.email
+   12  cd __SE___6/
+   13  cd __WT__/
+   14  ls
+   15  ls -la
+   16  git log
+   17  git config user.email
+   18  git -v
+   19  start cmd
+   20  exit
+   21  python
+   22  python3
+   23  start cmd
+   24  gedit -v
+   25  whoami
+   26  which
+   27  which __WT__
+   28  which __WT
+   29  which __
+   30  ls
+   31  cd ../../mnt/d/__SE___6/mad/mad_in_git/
+   32  ls
+   33  cd dart_calculator/
+   34  ls
+   35  dart calculate.dart 
+   36  dart -v
+   37  dart -s -v
+   38  dart -h
+   39  history > h.txt
