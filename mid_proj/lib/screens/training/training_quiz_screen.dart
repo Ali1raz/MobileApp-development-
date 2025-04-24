@@ -40,8 +40,10 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
   }
 
   Map<String, dynamic> _generateQuestion(int index) {
-    final operation = widget.selectedOperations[
-    random.nextInt(widget.selectedOperations.length)];
+    final operation =
+        widget.selectedOperations[random.nextInt(
+          widget.selectedOperations.length,
+        )];
     late int num1, num2, correctAnswer;
     String question;
 
@@ -106,12 +108,13 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
 
   void _handleAnswer(int selectedIndex) {
     final currentQuestion = questions[currentQuestionIndex];
-    final isCorrect = currentQuestion['options'][selectedIndex] ==
+    final isCorrect =
+        currentQuestion['options'][selectedIndex] ==
         currentQuestion['correctAnswer'];
 
     setState(() {
       questions[currentQuestionIndex]['userAnswer'] =
-      currentQuestion['options'][selectedIndex];
+          currentQuestion['options'][selectedIndex];
       questions[currentQuestionIndex]['isCorrect'] = isCorrect;
       selectedAnswerIndex = selectedIndex;
       showFeedback = true;
@@ -134,19 +137,22 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => QuizResultScreen(
-          questions: questions,
-          onRetry: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TrainingTestScreen(
-                selectedOperations: widget.selectedOperations,
-                minValue: widget.minValue,
-                maxValue: widget.maxValue,
-              ),
+        builder:
+            (context) => QuizResultScreen(
+              questions: questions,
+              onRetry:
+                  () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => TrainingTestScreen(
+                            selectedOperations: widget.selectedOperations,
+                            minValue: widget.minValue,
+                            maxValue: widget.maxValue,
+                          ),
+                    ),
+                  ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -199,13 +205,13 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       backgroundColor:
-                      showFeedback
-                          ? (isCorrect
-                          ? Colors.green
-                          : (index == selectedAnswerIndex
-                          ? Colors.red
-                          : Colors.indigoAccent))
-                          : Colors.indigoAccent,
+                          showFeedback
+                              ? (isCorrect
+                                  ? Colors.green
+                                  : (index == selectedAnswerIndex
+                                      ? Colors.red
+                                      : Colors.indigoAccent))
+                              : Colors.indigoAccent,
                     ),
                     onPressed: showFeedback ? null : () => _handleAnswer(index),
                     child: Text(

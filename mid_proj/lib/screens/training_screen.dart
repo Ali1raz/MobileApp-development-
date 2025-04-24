@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mid_proj/screens/input/input_training_screen.dart';
+import 'package:mid_proj/screens/input/input_quiz_screen.dart';
 import 'package:mid_proj/screens/question_screen.dart';
-import 'package:mid_proj/screens/training/training_test_screen.dart';
+import 'package:mid_proj/screens/training/training_quiz_screen.dart';
 import 'package:mid_proj/utils/constants.dart';
 
 class TrainingScreen extends StatefulWidget {
