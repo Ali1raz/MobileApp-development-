@@ -2,18 +2,21 @@
 
 A new Flutter project.
 
-# ScreenShots 
+# Screenshots
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <img src="screenshots/img.png" width="300" alt="img" />
-    <img src="screenshots/img_1.png" width="300" alt="img" />
-    <img src="screenshots/img_2.png" width="300" alt="img" />
-    <img src="screenshots/img_3.png" width="300" alt="img" />
-    <img src="screenshots/img_4.png" width="300" alt="img" />
-    <img src="screenshots/img_5.png" width="300" alt="img" />
-    <img src="screenshots/img_6.png" width="300" alt="img" />
-    <img src="screenshots/img_7.png" width="300" alt="img" />
-    <img src="screenshots/img_8.png" width="300" alt="img" />
+<div style="display: flex; flex-wrap: wrap; gap: 32px;">
+    <img src="screenshots/img.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_1.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_2.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_3.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_4.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_5.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_6.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_7.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_8.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_9.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_10.png" width="300" alt="screenshot" />
+    <img src="screenshots/img_11.png" width="300" alt="screenshot" />
 </div>
 
 ## Getting Started
