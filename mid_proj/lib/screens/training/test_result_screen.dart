@@ -57,13 +57,14 @@ class QuizResultScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: onRetry,
-                  child: const Text('Retry Test'),
-                ),
+                if (wrongCount > 0)
+                  ElevatedButton(
+                    onPressed: onRetry,
+                    child: const Text('Retry Mistakes'),
+                  ),
                 ElevatedButton(
                   onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
-                  child: const Text('Return Home'),
+                  child: const Text('Home'),
                 ),
               ],
             ),
@@ -75,13 +76,10 @@ class QuizResultScreen extends StatelessWidget {
 
   Widget _buildResultChip(String label, int count, Color color) {
     return Chip(
-      backgroundColor: color.withAlpha(2),
+      backgroundColor: color.withAlpha(20),
       label: Text(
         '$label: $count',
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
       ),
     );
   }

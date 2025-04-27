@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:mid_proj/screens/training/quiz_result_screen.dart';
+import 'package:mid_proj/screens/training/test_result_screen.dart';
 
 class TrainingTestScreen extends StatefulWidget {
-  final List<String> selectedOperations;
-  final int minValue;
-  final int maxValue;
+  final List<Map<String, dynamic>>? questions;
+  final bool isRetry;
+  final dynamic maxValue;
+  final dynamic minValue;
+  final dynamic selectedOperations;
 
   const TrainingTestScreen({
     super.key,
     required this.selectedOperations,
     required this.minValue,
     required this.maxValue,
+    this.questions,
+    this.isRetry = false,
   });
 
   @override
@@ -32,7 +36,13 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
   void initState() {
     super.initState();
     random = Random();
-    questions = _generateQuestions();
+    if (widget.isRetry) {
+      questions = widget.questions!.isNotEmpty
+          ? widget.questions!
+          : _generateQuestions();
+    } else {
+      questions = _generateQuestions();
+    }
   }
 
   List<Map<String, dynamic>> _generateQuestions() {
@@ -71,6 +81,9 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
 
       case '÷':
         num2 = _generateRandomNumber();
+        while (num2 == 0) {
+          num2 = _generateRandomNumber();
+        }
         int multiplier = random.nextInt(10) + 1;
         num1 = num2 * multiplier;
         correctAnswer = multiplier;
@@ -96,10 +109,13 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
     while (options.length < 4) {
       final offset = random.nextInt(10) + 1;
       final wrong = correct + (random.nextBool() ? offset : -offset);
-      if (wrong != correct) options.add(wrong);
+      if (widget.selectedOperations.contains('-') || widget.selectedOperations.contains('÷')) {
+        options.add(wrong);
+      } else {
+        options.add(wrong.abs());
+      }
     }
-    return options.toList()
-      ..shuffle();
+    return options.toList()..shuffle();
   }
 
   int _generateRandomNumber() {
@@ -109,20 +125,17 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
 
   void _handleAnswer(int selectedIndex) {
     final currentQuestion = questions[currentQuestionIndex];
-    final isCorrect =
-        currentQuestion['options'][selectedIndex] ==
-            currentQuestion['correctAnswer'];
+    final isCorrect = currentQuestion['options'][selectedIndex] == currentQuestion['correctAnswer'];
 
     setState(() {
-      questions[currentQuestionIndex]['userAnswer'] =
-      currentQuestion['options'][selectedIndex];
-      questions[currentQuestionIndex]['isCorrect'] = isCorrect;
+      currentQuestion['userAnswer'] = currentQuestion['options'][selectedIndex];
+      currentQuestion['isCorrect'] = isCorrect;
       selectedAnswerIndex = selectedIndex;
       showFeedback = true;
     });
 
     Future.delayed(const Duration(seconds: 1), () {
-      if (currentQuestionIndex < 9) {
+      if (currentQuestionIndex < questions.length - 1) {
         setState(() {
           currentQuestionIndex++;
           selectedAnswerIndex = null;
@@ -135,28 +148,26 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
   }
 
   void _navigateToResults() {
+    final wrongQuestions = questions.where((q) => !q['isCorrect']).toList();
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder:
-            (context) =>
-            QuizResultScreen(
-              questions: questions,
-              onRetry:
-                  () =>
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-                          TrainingTestScreen(
-                            selectedOperations: widget.selectedOperations,
-                            minValue: widget.minValue,
-                            maxValue: widget.maxValue,
-                          ),
-                    ),
-                  ),
+        builder: (context) => QuizResultScreen(
+          questions: questions,
+          onRetry: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TrainingTestScreen(
+                selectedOperations: widget.selectedOperations,
+                minValue: widget.minValue,
+                maxValue: widget.maxValue,
+                questions: wrongQuestions,
+                isRetry: true,
+              ),
             ),
+          ),
+        ),
       ),
     );
   }
@@ -164,7 +175,20 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
   @override
   Widget build(BuildContext context) {
     if (questions.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('No questions available!'),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     var currentQuestion = questions[currentQuestionIndex];
@@ -201,29 +225,29 @@ class _TrainingTestScreenState extends State<TrainingTestScreen> {
                 ),
                 itemBuilder: (context, index) {
                   int option = currentQuestion['options'][index];
-                  bool isCorrect = option == currentQuestion['correctAnswer'];
+                  bool isCorrectOption = option == currentQuestion['correctAnswer'];
+                  bool isSelected = selectedAnswerIndex == index;
+
+                  Color buttonColor = Colors.indigoAccent;
+                  if (showFeedback) {
+                    if (isCorrectOption) {
+                      buttonColor = Colors.green; // Correct answer: green
+                    } else if (isSelected) {
+                      buttonColor = Colors.red; // Selected wrong answer: red
+                    } else {
+                      buttonColor = Colors.indigoAccent.withOpacity(0.5); // Other options: dimmed
+                    }
+                  }
 
                   return ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor:
-                      showFeedback
-                          ? (isCorrect
-                          ? Colors.green
-                          : (index == selectedAnswerIndex
-                          ? Colors.red
-                          : Colors.indigoAccent))
-                          : Colors.indigoAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: buttonColor,
                     ),
                     onPressed: showFeedback ? null : () => _handleAnswer(index),
                     child: Text(
                       option.toString(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   );
                 },

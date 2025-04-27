@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mid_proj/screens/input/input_quiz_screen.dart';
 import 'package:mid_proj/screens/question_screen.dart';
-import 'package:mid_proj/screens/training/training_quiz_screen.dart';
+import 'package:mid_proj/screens/training/test_screen.dart';
 import 'package:mid_proj/utils/constants.dart';
 
 class TrainingScreen extends StatefulWidget {
@@ -229,7 +229,7 @@ class TrainingScreenState extends State<TrainingScreen> {
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           filled: true,
-          fillColor: colorScheme.surfaceVariant,
+          fillColor: colorScheme.surfaceContainerHighest,
           border: const OutlineInputBorder(),
         ),
         style: TextStyle(color: colorScheme.onSurface, fontSize: 18),
