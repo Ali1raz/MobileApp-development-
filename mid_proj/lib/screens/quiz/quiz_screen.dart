@@ -134,12 +134,13 @@ class _QuizScreenState extends State<QuizScreen> {
               '${currentQuestionIndex + 1}/10',
               style: const TextStyle(fontSize: 20),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
             Text(
               question,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 40),
+            // const SizedBox(height: 40),
+            Spacer(),
             ...options.asMap().entries.map((entry) {
               int idx = entry.key;
               int option = entry.value;
