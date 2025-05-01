@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,33 +34,81 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
+  bool isLoading = false;
   bool? success;
+  List<dynamic> events = [];
 
   Future<void> fetchData(String username) async {
+    setState(() {
+      isLoading = true;
+      success = null;
+    });
     final url = Uri.parse("https://api.github.com/users/$username/events");
     try {
       final response = await http.get(url);
 
-      if (response.statusCode == 404) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("404: User not found")));
+      if (response.statusCode == 200) {
         setState(() {
-          success = false;
+          events = jsonDecode(response.body);
+          success = true;
         });
         return;
+      } else if (response.statusCode == 404) {
+        setState(() {
+          events = [];
+          success = false;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("404: user not found.")));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${response.statusCode}")),
+        );
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Success")));
-      setState(() {
-        success = true;
-      });
     } catch (error) {
+      setState(() {
+        success = false;
+        events = [];
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Error: $error")));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  Widget buildItem(dynamic event) {
+    final type = event["type"];
+    final repoName = event["repo"]?["name"] ?? "Unknown";
+    List<String> commitMessages = [];
+
+    if (type == "PushEvent") {
+      final commits = event['payload']['commits'] ?? [];
+      commitMessages = List<String>.from(commits.map((c) => c['message']));
+    }
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text(repoName),
+        leading: CircleAvatar(
+          maxRadius: 20,
+          child: Image.network(event["actor"]["avatar_url"]),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Type: $type"),
+            ...commitMessages.map((msg) => Text("• $msg")),
+            Text(event['created_at'])
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -101,8 +151,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          _controller.text.trim();
                           if (_formKey.currentState!.validate()) {
-                            fetchData(_controller.text);
+                            fetchData(_controller.text.trim());
                           }
                         },
                         child: const Text('Search'),
@@ -112,7 +163,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
 
-              SizedBox(height: 40),
+              SizedBox(height: 10),
+              if (isLoading)
+                Center(child: const CircularProgressIndicator())
+              else if (success == true)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: events.length,
+                    itemBuilder: (context, index) {
+                      return buildItem(events[index]);
+                    },
+                  ),
+                )
+              else if (success == false)
+                const Text("No events found.")
             ],
           ),
         ),
