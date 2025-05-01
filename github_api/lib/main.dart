@@ -14,8 +14,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark().copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blueAccent,
+          brightness: Brightness.dark,
+        ),
       ),
       home: const MyHomePage(title: "Github Activity"),
     );
@@ -104,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Text("Type: $type"),
             ...commitMessages.map((msg) => Text("• $msg")),
-            Text(event['created_at'])
+            Text(event['created_at']),
           ],
         ),
       ),
@@ -123,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.onSecondary,
         title: Text(widget.title),
       ),
       body: SafeArea(
@@ -176,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 )
               else if (success == false)
-                const Text("No events found.")
+                const Text("No events found."),
             ],
           ),
         ),
