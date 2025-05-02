@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:github_api/utils/timesago.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -96,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
         title: Text(repoName),
         leading: CircleAvatar(
@@ -106,8 +108,17 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Type: $type"),
-            ...commitMessages.map((msg) => Text("• $msg")),
-            Text(event['created_at']),
+            SizedBox(height: 10,),
+            Text(timeAgoFromIso(event['created_at'])),
+            if (commitMessages.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ...commitMessages.map(
+                    (msg) => Text(
+                  "• $msg",
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+            ],
           ],
         ),
       ),
