@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'constants/theme.dart';
 
 void main() => runApp(const BMICalculator());
 
@@ -18,8 +19,8 @@ class _BMICalculatorState extends State<BMICalculator> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        primaryColor: Color(0xFF0A0E21),
-        scaffoldBackgroundColor: Color(0xFF0A0E21),
+        primaryColor: AppTheme.primaryColor,
+        scaffoldBackgroundColor: AppTheme.scaffoldBackgroundColor,
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -72,7 +73,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                         divisions: 120,
                         label: '147 cm',
                         onChanged: (val) {},
-                        activeColor: Colors.red,
+                        activeColor: AppTheme.activeColor,
                       ),
                     ],
                   ),
@@ -87,7 +88,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                 ),
               ),
               Container(
-                color: Colors.red,
+                color: AppTheme.buttonColor,
                 height: 60,
                 width: double.infinity,
                 child: Center(
