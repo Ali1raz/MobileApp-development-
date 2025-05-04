@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(const BMICalculator());
 
-class BMICalculator extends StatelessWidget {
+class BMICalculator extends StatefulWidget {
   const BMICalculator({super.key});
+
+  @override
+  State<BMICalculator> createState() => _BMICalculatorState();
+}
+
+class _BMICalculatorState extends State<BMICalculator> {
+  Gender? selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +27,26 @@ class BMICalculator extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    GenderCard(icon: Icons.male, label: 'MALE'),
-                    GenderCard(icon: Icons.female, label: 'FEMALE'),
+                    GenderCard(
+                      icon: Icons.male,
+                      label: 'MALE',
+                      isSelected: selectedGender == Gender.male,
+                      onTap: () {
+                        setState(() {
+                          selectedGender = Gender.male;
+                        });
+                      },
+                    ),
+                    GenderCard(
+                      icon: Icons.female,
+                      label: 'FEMALE',
+                      isSelected: selectedGender == Gender.female,
+                      onTap: () {
+                        setState(() {
+                          selectedGender = Gender.female;
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -79,23 +104,36 @@ class BMICalculator extends StatelessWidget {
   }
 }
 
+enum Gender { male, female }
+
 class GenderCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const GenderCard({required this.icon, required this.label});
+  const GenderCard({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: CardSection(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 60, color: Colors.white),
-            SizedBox(height: 10),
-            Text(label, style: TextStyle(color: Colors.white)),
-          ],
+      child: GestureDetector(
+        onTap: onTap,
+        child: CardSection(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 60, color: isSelected ? Colors.red : Colors.white),
+              SizedBox(height: 10),
+              Text(label, style: TextStyle(color: isSelected ? Colors.red : Colors.white)),
+            ],
+          ),
         ),
       ),
     );
@@ -106,7 +144,7 @@ class ValueCard extends StatelessWidget {
   final String label;
   final int value;
 
-  const ValueCard({required this.label, required this.value});
+  const ValueCard({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +179,7 @@ class ValueCard extends StatelessWidget {
 class CardSection extends StatelessWidget {
   final Widget child;
 
-  const CardSection({required this.child});
+  const CardSection({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
