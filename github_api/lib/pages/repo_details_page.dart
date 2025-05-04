@@ -45,8 +45,12 @@ class _RepoDetailsPageState extends State<RepoDetailsPage> {
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch URL')),
+        );
+      }
     }
   }
 
@@ -113,6 +117,7 @@ class _RepoDetailsPageState extends State<RepoDetailsPage> {
                 'Last updated: ${_formatDate(repo!.updatedAt)}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
