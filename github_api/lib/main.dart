@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:github_api/models/github_event.dart';
+import 'package:github_api/pages/repo_details_page.dart';
 import 'package:github_api/pages/user_details_page.dart';
 import 'package:github_api/services/github_service.dart';
 import 'package:github_api/utils/app_errors.dart';
 import 'package:github_api/widgets/event_card.dart';
+import 'package:github_api/widgets/event_skeleton.dart';
 import 'package:github_api/widgets/search_form.dart';
 
 void main() {
@@ -78,6 +80,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _navigateToRepoDetails(String fullName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RepoDetailsPage(fullName: fullName),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -108,17 +119,29 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 10),
               if (isLoading)
-                const Center(child: CircularProgressIndicator())
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: 3,
+                    itemBuilder: (context, index) => const EventSkeleton(),
+                  ),
+                )
               else if (events.isNotEmpty)
                 Expanded(
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: events.length,
-                          itemBuilder: (context, index) {
-                            return EventCard(event: events[index]);
-                          },
+                        child: RefreshIndicator(
+                          onRefresh: () => fetchData(_controller.text.trim()),
+                          child: ListView.builder(
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              final event = events[index];
+                              return EventCard(
+                                event: event,
+                                onTap: () => _navigateToRepoDetails(event.repoName),
+                              );
+                            },
+                          ),
                         ),
                       ),
                       Padding(
