@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(const BMICalculator());
 
+enum Gender { male, female }
+
 class BMICalculator extends StatefulWidget {
   const BMICalculator({super.key});
 
@@ -19,8 +21,9 @@ class _BMICalculatorState extends State<BMICalculator> {
         primaryColor: Color(0xFF0A0E21),
         scaffoldBackgroundColor: Color(0xFF0A0E21),
       ),
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text("BMI Calculator"),),
+        appBar: AppBar(title: Text("BMI Calculator")),
         body: SafeArea(
           child: Column(
             children: [
@@ -28,8 +31,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                 child: Row(
                   children: [
                     GenderCard(
-                      icon: Icons.male,
-                      label: 'MALE',
+                      gender: Gender.male,
                       isSelected: selectedGender == Gender.male,
                       onTap: () {
                         setState(() {
@@ -38,8 +40,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                       },
                     ),
                     GenderCard(
-                      icon: Icons.female,
-                      label: 'FEMALE',
+                      gender: Gender.female,
                       isSelected: selectedGender == Gender.female,
                       onTap: () {
                         setState(() {
@@ -104,18 +105,14 @@ class _BMICalculatorState extends State<BMICalculator> {
   }
 }
 
-enum Gender { male, female }
-
 class GenderCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
+  final Gender gender;
   final bool isSelected;
   final VoidCallback onTap;
 
   const GenderCard({
     super.key,
-    required this.icon,
-    required this.label,
+    required this.gender,
     required this.isSelected,
     required this.onTap,
   });
@@ -129,9 +126,16 @@ class GenderCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 60, color: isSelected ? Colors.red : Colors.white),
+              Icon(
+                gender == Gender.male ? Icons.male : Icons.female,
+                size: 60,
+                color: isSelected ? Colors.red : Colors.white,
+              ),
               SizedBox(height: 10),
-              Text(label, style: TextStyle(color: isSelected ? Colors.red : Colors.white)),
+              Text(
+                gender == Gender.male ? 'MALE' : 'FEMALE',
+                style: TextStyle(color: isSelected ? Colors.red : Colors.white),
+              ),
             ],
           ),
         ),
