@@ -15,6 +15,8 @@ class BMICalculator extends StatefulWidget {
 class _BMICalculatorState extends State<BMICalculator> {
   Gender? selectedGender;
   double height = 120.0;
+  int weight = 60;
+  int age = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -88,8 +90,34 @@ class _BMICalculatorState extends State<BMICalculator> {
               Expanded(
                 child: Row(
                   children: [
-                    ValueCard(label: "WEIGHT", value: 60),
-                    ValueCard(label: "AGE", value: 20),
+                    ValueCard(
+                      label: "WEIGHT",
+                      value: weight,
+                      onIncrement: () {
+                        setState(() {
+                          weight++;
+                        });
+                      },
+                      onDecrement: () {
+                        setState(() {
+                          weight--;
+                        });
+                      },
+                    ),
+                    ValueCard(
+                      label: "AGE",
+                      value: age,
+                      onIncrement: () {
+                        setState(() {
+                          age++;
+                        });
+                      },
+                      onDecrement: () {
+                        setState(() {
+                          age--;
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -154,8 +182,16 @@ class GenderCard extends StatelessWidget {
 class ValueCard extends StatelessWidget {
   final String label;
   final int value;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
 
-  const ValueCard({super.key, required this.label, required this.value});
+  const ValueCard({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onIncrement,
+    required this.onDecrement,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -169,14 +205,20 @@ class ValueCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.grey[800],
-                  child: Icon(Icons.remove, color: Colors.white),
+                GestureDetector(
+                  onTap: onDecrement,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    child: Icon(Icons.remove, color: Colors.white),
+                  ),
                 ),
                 SizedBox(width: 10),
-                CircleAvatar(
-                  backgroundColor: Colors.grey[800],
-                  child: Icon(Icons.add, color: Colors.white),
+                GestureDetector(
+                  onTap: onIncrement,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
                 ),
               ],
             ),
