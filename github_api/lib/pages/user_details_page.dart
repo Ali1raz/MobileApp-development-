@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:github_api/models/github_event.dart';
 import 'package:github_api/models/github_user.dart';
+import 'package:github_api/pages/repo_details_page.dart';
 import 'package:github_api/services/github_service.dart';
 import 'package:github_api/utils/app_errors.dart';
 import 'package:github_api/widgets/event_card.dart';
@@ -87,6 +88,15 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     }
   }
 
+  void _navigateToRepoDetails(String fullName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RepoDetailsPage(fullName: fullName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -155,7 +165,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Widget _buildEventsList() {
     return Column(
       children: [
-        ...events.map((event) => EventCard(event: event)),
+        ...events.map(
+          (event) => EventCard(
+            event: event,
+            onTap: () => _navigateToRepoDetails(event.repoName),
+          ),
+        ),
         if (isPaginationLoading)
           const Padding(
             padding: EdgeInsets.all(16.0),
