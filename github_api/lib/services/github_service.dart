@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:github_api/models/github_event.dart';
+import 'package:github_api/models/github_repo.dart';
 import 'package:github_api/models/github_user.dart';
 import 'package:github_api/utils/app_errors.dart';
 
@@ -15,6 +16,28 @@ class GithubService {
 
       if (response.statusCode == 200) {
         return GithubUser.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 404) {
+        throw AppError.userNotFound;
+      } else {
+        throw AppError.unknownError;
+      }
+    } catch (e) {
+      if (e is AppError) rethrow;
+      if (e.toString().toLowerCase().contains('network') ||
+          e.toString().toLowerCase().contains('socket')) {
+        throw AppError.networkError;
+      }
+      throw AppError.unknownError;
+    }
+  }
+
+  Future<GithubRepo> fetchRepoDetails(String fullName) async {
+    try {
+      final url = Uri.parse("$baseUrl/repos/$fullName");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return GithubRepo.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 404) {
         throw AppError.userNotFound;
       } else {
