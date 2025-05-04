@@ -16,7 +16,10 @@ class GithubEvent {
   factory GithubEvent.fromJson(Map<String, dynamic> json) {
     final payload = json['payload'] as Map<String, dynamic>? ?? {};
     final commits = payload['commits'] as List<dynamic>? ?? [];
-    final commitMessages = commits.map((c) => (c as Map<String, dynamic>)['message'] as String? ?? '').toList();
+    final commitMessages =
+        commits
+            .map((c) => (c as Map<String, dynamic>)['message'] as String? ?? '')
+            .toList();
 
     final repo = json['repo'] as Map<String, dynamic>?;
     final actor = json['actor'] as Map<String, dynamic>?;
@@ -29,4 +32,4 @@ class GithubEvent {
       commitMessages: commitMessages,
     );
   }
-} 
+}

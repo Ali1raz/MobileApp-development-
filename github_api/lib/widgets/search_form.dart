@@ -45,4 +45,4 @@ class SearchForm extends StatelessWidget {
       ),
     );
   }
-} 
+}

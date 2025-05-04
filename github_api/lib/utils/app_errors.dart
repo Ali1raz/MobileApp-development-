@@ -1,6 +1,8 @@
 enum AppError {
-  userNotFound('User not found. Please check the username and try again.'),
-  networkError('Network error. Please check your internet connection and try again.'),
+  userNotFound('User not found.'),
+  networkError(
+    'Network error. Please check your internet connection and try again.',
+  ),
   noActivity('No activity found for this user.'),
   unknownError('Something went wrong. Please try again later.');
 
@@ -17,4 +19,4 @@ enum AppError {
       return AppError.unknownError;
     }
   }
-} 
+}

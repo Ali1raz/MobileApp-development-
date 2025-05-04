@@ -5,10 +5,7 @@ import 'package:github_api/utils/timesago.dart';
 class EventCard extends StatelessWidget {
   final GithubEvent event;
 
-  const EventCard({
-    super.key,
-    required this.event,
-  });
+  const EventCard({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +13,10 @@ class EventCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ListTile(
-        title: Text(event.repoName),
+        title: Text(
+          event.repoName,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
         leading: CircleAvatar(
           maxRadius: 20,
           child: Image.network(event.actorAvatarUrl),
@@ -30,10 +30,7 @@ class EventCard extends StatelessWidget {
             if (event.commitMessages.isNotEmpty) ...[
               const SizedBox(height: 10),
               ...event.commitMessages.map(
-                (msg) => Text(
-                  "• $msg",
-                  style: const TextStyle(fontSize: 13),
-                ),
+                (msg) => Text("• $msg", style: const TextStyle(fontSize: 12)),
               ),
             ],
           ],
@@ -41,4 +38,4 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
-} 
+}
