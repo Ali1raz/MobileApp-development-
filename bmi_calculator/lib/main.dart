@@ -14,6 +14,7 @@ class BMICalculator extends StatefulWidget {
 
 class _BMICalculatorState extends State<BMICalculator> {
   Gender? selectedGender;
+  double height = 120.0;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                     children: [
                       Text("HEIGHT", style: TextStyle(color: Colors.white)),
                       Text(
-                        "147 cm",
+                        "${height.round()} cm",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
@@ -67,13 +68,18 @@ class _BMICalculatorState extends State<BMICalculator> {
                         ),
                       ),
                       Slider(
-                        value: 147.0,
-                        min: 100.0,
+                        value: height,
+                        min: 120.0,
                         max: 220.0,
-                        divisions: 120,
-                        label: '147 cm',
-                        onChanged: (val) {},
+                        divisions: 100,
+                        label: '${height.round()} cm',
+                        onChanged: (val) {
+                          setState(() {
+                            height = val;
+                          });
+                        },
                         activeColor: AppTheme.activeColor,
+                        inactiveColor: AppTheme.inactiveColor,
                       ),
                     ],
                   ),
