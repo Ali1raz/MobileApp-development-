@@ -21,6 +21,12 @@ class SearchForm extends StatelessWidget {
           TextFormField(
             decoration: const InputDecoration(labelText: "Username"),
             controller: controller,
+            textInputAction: TextInputAction.search,
+            onFieldSubmitted: (_) {
+              if (formKey.currentState!.validate()) {
+                onSearch();
+              }
+            },
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return "Please enter your Github username here.";
