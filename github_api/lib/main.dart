@@ -1,8 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:github_api/utils/timesago.dart';
-import 'package:http/http.dart' as http;
+import 'package:github_api/models/github_event.dart';
+import 'package:github_api/services/github_service.dart';
+import 'package:github_api/utils/app_errors.dart';
+import 'package:github_api/widgets/event_card.dart';
+import 'package:github_api/widgets/search_form.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,46 +39,37 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
+  final GithubService _githubService = GithubService();
   bool isLoading = false;
-  bool? success;
-  List<dynamic> events = [];
+  AppError? error;
+  List<GithubEvent> events = [];
 
   Future<void> fetchData(String username) async {
     setState(() {
       isLoading = true;
-      success = null;
+      error = null;
     });
-    final url = Uri.parse("https://api.github.com/users/$username/events");
-    try {
-      final response = await http.get(url);
 
-      if (response.statusCode == 200) {
-        setState(() {
-          events = jsonDecode(response.body);
-          success = true;
-        });
-        return;
-      } else if (response.statusCode == 404) {
-        setState(() {
-          events = [];
-          success = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("404: user not found.")));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${response.statusCode}")),
-        );
-      }
-    } catch (error) {
+    try {
+      final response = await _githubService.fetchUserEvents(username);
       setState(() {
-        success = false;
+        events = response.map((e) => GithubEvent.fromJson(e)).toList();
+      });
+    } on AppError catch (e) {
+      setState(() {
+        error = e;
         events = [];
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $error")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -85,56 +77,18 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Widget buildItem(dynamic event) {
-    final type = event["type"];
-    final repoName = event["repo"]?["name"] ?? "Unknown";
-    List<String> commitMessages = [];
-
-    if (type == "PushEvent") {
-      final commits = event['payload']['commits'] ?? [];
-      commitMessages = List<String>.from(commits.map((c) => c['message']));
-    }
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: ListTile(
-        title: Text(repoName),
-        leading: CircleAvatar(
-          maxRadius: 20,
-          child: Image.network(event["actor"]["avatar_url"]),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Type: $type"),
-            SizedBox(height: 10,),
-            Text(timeAgoFromIso(event['created_at'])),
-            if (commitMessages.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              ...commitMessages.map(
-                    (msg) => Text(
-                  "• $msg",
-                  style: const TextStyle(fontSize: 13),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final errorColor = theme.colorScheme.tertiary.withAlpha(100);
+    final errorTextColor = theme.colorScheme.onTertiary;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.onSecondary,
@@ -145,56 +99,63 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(height: 30),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: "Username"),
-                      controller: _controller,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter your Github username here.";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _controller.text.trim();
-                          if (_formKey.currentState!.validate()) {
-                            fetchData(_controller.text.trim());
-                          }
-                        },
-                        child: const Text('Search'),
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 30),
+              SearchForm(
+                controller: _controller,
+                onSearch: () => fetchData(_controller.text.trim()),
+                formKey: _formKey,
               ),
-
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               if (isLoading)
-                Center(child: const CircularProgressIndicator())
-              else if (success == true)
+                const Center(child: CircularProgressIndicator())
+              else if (events.isNotEmpty)
                 Expanded(
                   child: ListView.builder(
                     itemCount: events.length,
                     itemBuilder: (context, index) {
-                      return buildItem(events[index]);
+                      return EventCard(event: events[index]);
                     },
                   ),
                 )
-              else if (success == false)
-                const Text("No events found."),
+              else if (error != null)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _getErrorIcon(error!),
+                        size: 48,
+                        color: errorColor,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        error!.message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: errorTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  IconData _getErrorIcon(AppError error) {
+    switch (error) {
+      case AppError.userNotFound:
+        return Icons.person_off;
+      case AppError.networkError:
+        return Icons.wifi_off;
+      case AppError.noActivity:
+        return Icons.event_busy;
+      case AppError.unknownError:
+        return Icons.error_outline;
+    }
   }
 }
