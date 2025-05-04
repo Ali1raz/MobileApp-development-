@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:github_api/models/github_event.dart';
+import 'package:github_api/pages/user_details_page.dart';
 import 'package:github_api/services/github_service.dart';
 import 'package:github_api/utils/app_errors.dart';
 import 'package:github_api/widgets/event_card.dart';
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       final response = await _githubService.fetchUserEvents(username);
       setState(() {
-        events = response.map((e) => GithubEvent.fromJson(e)).toList();
+        events = response.take(5).toList();
       });
     } on AppError catch (e) {
       setState(() {
@@ -63,11 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
-          backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.secondary.withAlpha(200),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
     } finally {
@@ -86,8 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final errorColor = theme.colorScheme.tertiary.withAlpha(100);
-    final errorTextColor = theme.colorScheme.onTertiary;
+    final errorColor = theme.colorScheme.secondary;
+    final errorTextColor = theme.colorScheme.error;
 
     return Scaffold(
       appBar: AppBar(
@@ -110,11 +111,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Center(child: CircularProgressIndicator())
               else if (events.isNotEmpty)
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      return EventCard(event: events[index]);
-                    },
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: events.length,
+                          itemBuilder: (context, index) {
+                            return EventCard(event: events[index]);
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => UserDetailsPage(
+                                      username: _controller.text.trim(),
+                                    ),
+                              ),
+                            );
+                          },
+                          child: const Text('View All Activity'),
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else if (error != null)
@@ -122,19 +146,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        _getErrorIcon(error!),
-                        size: 48,
-                        color: errorColor,
-                      ),
+                      Icon(_getErrorIcon(error!), size: 48, color: errorColor),
                       const SizedBox(height: 16),
                       Text(
                         error!.message,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: errorTextColor,
-                        ),
+                        style: TextStyle(fontSize: 16, color: errorTextColor),
                       ),
                     ],
                   ),
