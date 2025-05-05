@@ -35,4 +35,4 @@ class ValueCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

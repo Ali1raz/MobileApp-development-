@@ -27,10 +27,7 @@ class ResultScreen extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Text(
                 'Your Result',
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -64,9 +61,7 @@ class ResultScreen extends StatelessWidget {
                   Text(
                     interpretation,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22,
-                    ),
+                    style: TextStyle(fontSize: 22),
                   ),
                 ],
               ),
@@ -84,10 +79,7 @@ class ResultScreen extends StatelessWidget {
               child: Center(
                 child: Text(
                   'RE-CALCULATE',
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -96,4 +88,4 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
-} 
+}

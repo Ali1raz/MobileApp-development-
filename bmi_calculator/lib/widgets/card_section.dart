@@ -16,4 +16,4 @@ class CardSection extends StatelessWidget {
       child: child,
     );
   }
-} 
+}

@@ -39,4 +39,4 @@ class GenderCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

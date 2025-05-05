@@ -156,24 +156,25 @@ class _InputPageState extends State<InputPage> {
                 ],
               ),
             ),
-            Container(
-              color: AppTheme.buttonColor,
-              height: 60,
-              width: double.infinity,
-              child: GestureDetector(
-                onTap: () {
-                  final bmi = calculateBMI();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ResultScreen(
-                        bmi: bmi,
-                        result: getResult(bmi),
-                        interpretation: getInterpretation(bmi),
-                      ),
-                    ),
-                  );
-                },
+            GestureDetector(
+              onTap: () {
+                final bmi = calculateBMI();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ResultScreen(
+                          bmi: bmi,
+                          result: getResult(bmi),
+                          interpretation: getInterpretation(bmi),
+                        ),
+                  ),
+                );
+              },
+              child: Container(
+                color: AppTheme.buttonColor,
+                height: 60,
+                width: double.infinity,
                 child: Center(
                   child: Text(
                     "CALCULATE",
