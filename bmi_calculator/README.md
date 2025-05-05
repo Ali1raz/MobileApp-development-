@@ -1,6 +1,9 @@
 # bmi_calculator
 
-A new Flutter project.
+<div style="display: flex; flex-wrap: wrap; gap: 12px;">
+    <img src="screenshots/img.png" alt="screenshot" width="300" title="screenshot"/>
+    <img src="screenshots/img_1.png" alt="screenshot" width="300" title="screenshot"/>
+</div>
 
 ## Getting Started
 
