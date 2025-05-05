@@ -75,11 +75,11 @@ class ResultScreen extends StatelessWidget {
               color: AppTheme.buttonColor,
               margin: EdgeInsets.only(top: 10),
               width: double.infinity,
-              height: 80,
+              height: 60,
               child: Center(
                 child: Text(
                   'RE-CALCULATE',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

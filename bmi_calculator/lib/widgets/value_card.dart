@@ -1,11 +1,20 @@
+import 'package:bmi_calculator/main.dart';
+import 'package:bmi_calculator/widgets/card_section.dart';
 import 'package:flutter/material.dart';
-import 'card_section.dart';
 
 class ValueCard extends StatelessWidget {
   final String label;
   final int value;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
 
-  const ValueCard({super.key, required this.label, required this.value});
+  const ValueCard({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onIncrement,
+    required this.onDecrement,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +28,20 @@ class ValueCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.grey[800],
-                  child: Icon(Icons.remove, color: Colors.white),
+                GestureDetector(
+                  onTap: onDecrement,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    child: Icon(Icons.remove, color: Colors.white),
+                  ),
                 ),
                 SizedBox(width: 10),
-                CircleAvatar(
-                  backgroundColor: Colors.grey[800],
-                  child: Icon(Icons.add, color: Colors.white),
+                GestureDetector(
+                  onTap: onIncrement,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
                 ),
               ],
             ),
