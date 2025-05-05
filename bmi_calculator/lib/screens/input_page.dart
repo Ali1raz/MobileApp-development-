@@ -14,7 +14,7 @@ class InputPage extends StatefulWidget {
 }
 
 class _InputPageState extends State<InputPage> {
-  Gender? selectedGender;
+  Gender selectedGender = Gender.male;
   double height = 120.0;
   int weight = 60;
   int age = 20;
@@ -46,7 +46,7 @@ class _InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("BMI Calculator")),
+      appBar: AppBar(title: Text("BMI Calculator"), backgroundColor: AppTheme.primaryColor,),
       body: SafeArea(
         child: Column(
           children: [

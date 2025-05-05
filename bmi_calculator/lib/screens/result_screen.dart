@@ -16,7 +16,7 @@ class ResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('BMI Result')),
+      appBar: AppBar(title: Text('BMI Result'), backgroundColor: AppTheme.primaryColor,),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -58,10 +58,13 @@ class ResultScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    interpretation,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 22),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      interpretation,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22),
+                    ),
                   ),
                 ],
               ),
