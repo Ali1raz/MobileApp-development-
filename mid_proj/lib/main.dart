@@ -1,50 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:mid_proj/providers/theme_provider.dart';
-import 'package:mid_proj/screens/home_screen.dart';
-import 'package:mid_proj/screens/settings.dart';
+import 'package:mid_proj/core/theme/app_theme.dart';
+import 'package:mid_proj/core/routes/app_router.dart';
+import 'package:mid_proj/core/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
-    ),
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final String title = 'Multiplication';
-
-  @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return MaterialApp(
-      title: title,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      onGenerateRoute: (settings) {
-        if (settings.name == '/settings') {
-          return MaterialPageRoute(
-            builder:
-                (context) => SettingsPage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: 'Multiplication',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            debugShowCheckedModeBanner: false,
+            onGenerateRoute: AppRouter.onGenerateRoute,
           );
-        }
-        return MaterialPageRoute(
-          builder: (context) => HomeScreen(title: title),
-        );
-      },
+        },
+      ),
     );
   }
 }

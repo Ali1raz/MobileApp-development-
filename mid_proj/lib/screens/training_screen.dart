@@ -189,10 +189,9 @@ class TrainingScreenState extends State<TrainingScreen> {
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => TrainingTestScreen(
-                                selectedOperations: selectedOperations,
-                                minValue: int.parse(min.text),
-                                maxValue: int.parse(max.text),
+                              (context) => TestScreen(
+                                number: int.parse(min.text),
+                                quizType: 'Training',
                               ),
                         ),
                       );

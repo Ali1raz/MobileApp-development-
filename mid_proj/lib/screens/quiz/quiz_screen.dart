@@ -96,13 +96,10 @@ class _QuizScreenState extends State<QuizScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder:
-                (context) => QuizResultScreen(
-                  correct: correctCount,
-                  wrong: wrongCount,
-                  quizType: widget.quizType,
-                  number: widget.number,
-                ),
+            builder: (context) => QuizResultScreen(
+              score: correctCount,
+              totalQuestions: questions.length,
+            ),
           ),
         );
       }
