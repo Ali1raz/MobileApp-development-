@@ -1,14 +1,14 @@
 {
   "name": "backend-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.mjs",
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
