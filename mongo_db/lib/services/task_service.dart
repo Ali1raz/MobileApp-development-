@@ -1,129 +1,154 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/task.dart';
+import '../config/api_config.dart';
+import 'local_db_service.dart';
 
 class TaskService {
-  static const String baseUrl = 'http://192.168.236.66:4444/api/tasks';
-  static const Map<String, String> _headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-  };
+  final LocalDbService _localDb = LocalDbService();
+  bool _isConnected = true;
 
-  String _buildUrl({int? page, int? limit, bool? completed}) {
-    final queryParams = <String, String>{};
-    if (page != null) queryParams['page'] = page.toString();
-    if (limit != null) queryParams['limit'] = limit.toString();
-    if (completed != null) queryParams['completed'] = completed.toString();
-    
-    final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
-    return uri.toString();
+  TaskService() {
+    _checkConnection();
   }
 
-  Future<Map<String, dynamic>> getTasks({int page = 1, int limit = 10, bool? completed}) async {
+  Future<void> _checkConnection() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _isConnected = connectivityResult != ConnectivityResult.none;
+  }
+
+  Future<Map<String, dynamic>> getTasks({int page = 1, bool? completed}) async {
+    await _checkConnection();
+    if (!_isConnected) {
+      final tasks = await _localDb.getTasks();
+      return {
+        'tasks': tasks,
+        'currentPage': 1,
+        'totalPages': 1,
+        'totalTasks': tasks.length,
+      };
+    }
+
     try {
       final response = await http.get(
-        Uri.parse(_buildUrl(page: page, limit: limit, completed: completed)),
-        headers: _headers,
+        Uri.parse('${ApiConfig.baseUrl}?page=$page${completed != null ? '&completed=$completed' : ''}'),
+        headers: {'Accept': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        try {
-          final Map<String, dynamic> data = json.decode(response.body);
-          final List<dynamic> tasksJson = data['tasks'] ?? [];
-          
-          return {
-            'tasks': tasksJson.map((json) => Task.fromJson(json)).toList(),
-            'currentPage': data['currentPage'] ?? page,
-            'totalPages': data['totalPages'] ?? 1,
-            'totalTasks': data['totalTasks'] ?? 0,
-          };
-        } catch (e) {
-          throw Exception('Failed to parse response: $e');
+        final data = json.decode(response.body);
+        final tasks = (data['tasks'] as List).map((t) => Task.fromJson(t)).toList();
+        
+        // Save to local DB for offline access
+        for (var task in tasks) {
+          await _localDb.saveTask(task);
         }
+
+        return {
+          'tasks': tasks,
+          'currentPage': data['currentPage'] ?? page,
+          'totalPages': data['totalPages'] ?? 1,
+          'totalTasks': data['totalTasks'] ?? tasks.length,
+        };
       } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to load tasks: ${response.statusCode}');
+        throw Exception('Failed to load tasks');
       }
     } catch (e) {
-      if (e is http.ClientException) {
-        throw Exception('Network error: Please check if the server is running and accessible');
-      }
-      throw Exception('Failed to connect to server: $e');
+      // Fallback to local DB if server fails
+      final tasks = await _localDb.getTasks();
+      return {
+        'tasks': tasks,
+        'currentPage': 1,
+        'totalPages': 1,
+        'totalTasks': tasks.length,
+      };
     }
   }
 
   Future<Task> createTask(Task task) async {
+    await _checkConnection();
+    if (!_isConnected) {
+      await _localDb.saveTask(task);
+      return task;
+    }
+
     try {
       final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: _headers,
+        Uri.parse(ApiConfig.baseUrl),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
         body: json.encode(task.toJson()),
       );
 
       if (response.statusCode == 201) {
-        try {
-          return Task.fromJson(json.decode(response.body));
-        } catch (e) {
-          throw Exception('Failed to parse created task: $e');
-        }
+        final createdTask = Task.fromJson(json.decode(response.body));
+        await _localDb.saveTask(createdTask);
+        return createdTask;
       } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to create task: ${response.statusCode}');
+        throw Exception('Failed to create task');
       }
     } catch (e) {
-      if (e is http.ClientException) {
-        throw Exception('Network error: Please check if the server is running and accessible');
-      }
-      throw Exception('Failed to create task: $e');
+      // Save locally if server fails
+      await _localDb.saveTask(task);
+      return task;
     }
   }
 
   Future<Task> updateTask(Task task) async {
-    if (task.id == null) {
-      throw Exception('Task ID is required for update');
+    await _checkConnection();
+    if (!_isConnected) {
+      await _localDb.saveTask(task);
+      return task;
     }
 
     try {
       final response = await http.patch(
-        Uri.parse('$baseUrl/${task.id}'),
-        headers: _headers,
+        Uri.parse('${ApiConfig.baseUrl}/${task.id}'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
         body: json.encode(task.toJson()),
       );
 
       if (response.statusCode == 200) {
-        try {
-          return Task.fromJson(json.decode(response.body));
-        } catch (e) {
-          throw Exception('Failed to parse updated task: $e');
-        }
+        final updatedTask = Task.fromJson(json.decode(response.body));
+        await _localDb.saveTask(updatedTask);
+        return updatedTask;
       } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update task: ${response.statusCode}');
+        throw Exception('Failed to update task');
       }
     } catch (e) {
-      if (e is http.ClientException) {
-        throw Exception('Network error: Please check if the server is running and accessible');
-      }
-      throw Exception('Failed to update task: $e');
+      // Save locally if server fails
+      await _localDb.saveTask(task);
+      return task;
     }
   }
 
   Future<void> deleteTask(String id) async {
+    await _checkConnection();
+    if (!_isConnected) {
+      await _localDb.deleteTask(id);
+      return;
+    }
+
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/$id'),
-        headers: _headers,
+        Uri.parse('${ApiConfig.baseUrl}/$id'),
+        headers: {'Accept': 'application/json'},
       );
 
-      if (response.statusCode != 200) {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to delete task: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        await _localDb.deleteTask(id);
+      } else {
+        throw Exception('Failed to delete task');
       }
     } catch (e) {
-      if (e is http.ClientException) {
-        throw Exception('Network error: Please check if the server is running and accessible');
-      }
-      throw Exception('Failed to delete task: $e');
+      // Delete locally if server fails
+      await _localDb.deleteTask(id);
     }
   }
 }

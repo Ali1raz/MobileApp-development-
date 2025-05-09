@@ -46,9 +46,6 @@ class TaskList extends StatelessWidget {
             ),
             title: Text(
               task.title,
-              style: TextStyle(
-                decoration: task.completed ? TextDecoration.lineThrough : null,
-              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
