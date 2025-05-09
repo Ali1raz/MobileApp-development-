@@ -36,6 +36,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Task> _tasks = [];
   bool _isLoading = true;
   String? _error;
+  int _currentPage = 1;
+  int _totalPages = 1;
+  int _totalTasks = 0;
+  bool? _filterCompleted;
 
   @override
   void initState() {
@@ -49,9 +53,15 @@ class _MyHomePageState extends State<MyHomePage> {
         _isLoading = true;
         _error = null;
       });
-      final tasks = await _taskService.getTasks();
+      final result = await _taskService.getTasks(
+        page: _currentPage,
+        completed: _filterCompleted,
+      );
       setState(() {
-        _tasks = tasks;
+        _tasks = result['tasks'] as List<Task>;
+        _currentPage = result['currentPage'] as int;
+        _totalPages = result['totalPages'] as int;
+        _totalTasks = result['totalTasks'] as int;
         _isLoading = false;
       });
     } catch (e) {
@@ -69,7 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       final newTask = await _taskService.createTask(task);
       setState(() {
-        _tasks.add(newTask);
+        _tasks.insert(0, newTask);
+        _totalTasks++;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,9 +92,9 @@ class _MyHomePageState extends State<MyHomePage> {
         _error = e.toString();
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }
@@ -99,11 +110,11 @@ class _MyHomePageState extends State<MyHomePage> {
         priority: task.priority,
         completed: !task.completed,
       );
-      await _taskService.updateTask(updatedTask);
+      final result = await _taskService.updateTask(updatedTask);
       setState(() {
         final index = _tasks.indexWhere((t) => t.id == task.id);
         if (index != -1) {
-          _tasks[index] = updatedTask;
+          _tasks[index] = result;
         }
       });
     } catch (e) {
@@ -111,11 +122,19 @@ class _MyHomePageState extends State<MyHomePage> {
         _error = e.toString();
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
+  }
+
+  void _setFilter(bool? completed) {
+    setState(() {
+      _filterCompleted = completed;
+      _currentPage = 1;
+    });
+    _loadTasks();
   }
 
   @override
@@ -125,10 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Task Manager"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadTasks,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadTasks),
         ],
       ),
       body: Padding(
@@ -153,14 +169,72 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             TaskForm(onTaskAdded: _addTask),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                DropdownButton<bool?>(
+                  value: _filterCompleted,
+                  hint: const Text('Filter'),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: false, child: Text('Pending')),
+                    DropdownMenuItem(value: true, child: Text('Completed')),
+                  ],
+                  onChanged: _setFilter,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Showing ${_tasks.length} of $_totalTasks tasks (Page $_currentPage of $_totalPages)',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
             Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : TaskList(
-                      tasks: _tasks,
-                      onTaskToggled: _toggleTask,
-                    ),
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Column(
+                        children: [
+                          Expanded(
+                            child: TaskList(
+                              tasks: _tasks,
+                              onTaskToggled: _toggleTask,
+                            ),
+                          ),
+                          if (_totalPages > 1)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_left),
+                                    onPressed:
+                                        _currentPage > 1
+                                            ? () {
+                                              setState(() => _currentPage--);
+                                              _loadTasks();
+                                            }
+                                            : null,
+                                  ),
+                                  Text('Page $_currentPage of $_totalPages'),
+                                  IconButton(
+                                    icon: const Icon(Icons.chevron_right),
+                                    onPressed:
+                                        _currentPage < _totalPages
+                                            ? () {
+                                              setState(() => _currentPage++);
+                                              _loadTasks();
+                                            }
+                                            : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
             ),
           ],
         ),
