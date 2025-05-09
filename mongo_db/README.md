@@ -1,15 +1,13 @@
 # mongo_db
 
-A new Flutter project.
+See backend-api docs [here](./backend-api/README.md)
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<div style="display:flex; flex-wrap: wrap; gap: 10px;">
+    <img src="screenshots/img_6.png" alt="screenshot" width="300"/>
+    <img src="screenshots/img_5.png" alt="screenshot" width="300"/>
+    <img src="screenshots/img_2.png" alt="screenshot" width="300"/>
+    <img src="screenshots/img.png" alt="screenshot" width="300"/>
+</div>
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
