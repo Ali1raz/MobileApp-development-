@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/task.dart';
+import '../pages/task_details.dart';
 
 class TaskList extends StatelessWidget {
   final List<Task> tasks;
   final Function(Task) onTaskToggled;
+  final Function(Task) onTaskUpdated;
 
-  const TaskList({super.key, required this.tasks, required this.onTaskToggled});
+  const TaskList({
+    super.key, 
+    required this.tasks, 
+    required this.onTaskToggled,
+    required this.onTaskUpdated,
+  });
 
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     return DateFormat('MMM d, y HH:mm').format(date);
+  }
+
+  void _showTaskDetails(BuildContext context, Task task) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskDetailsPage(
+          task: task,
+          onTaskUpdated: onTaskUpdated,
+        ),
+      ),
+    );
   }
 
   @override
@@ -30,6 +49,8 @@ class TaskList extends StatelessWidget {
               style: TextStyle(
                 decoration: task.completed ? TextDecoration.lineThrough : null,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,14 +70,7 @@ class TaskList extends StatelessWidget {
                 if (task.createdAt != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'Created: ${_formatDate(task.createdAt)}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-                if (task.updatedAt != null && task.updatedAt != task.createdAt) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    'Updated: ${_formatDate(task.updatedAt)}',
+                    _formatDate(task.createdAt),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -76,9 +90,11 @@ class TaskList extends StatelessWidget {
                 ),
               ),
             ),
+            onTap: () => _showTaskDetails(context, task),
           ),
         );
       },
     );
   }
 }
+

@@ -201,6 +201,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: TaskList(
                               tasks: _tasks,
                               onTaskToggled: _toggleTask,
+                              onTaskUpdated: (updatedTask) {
+                                setState(() {
+                                  final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
+                                  if (index != -1) {
+                                    _tasks[index] = updatedTask;
+                                  }
+                                });
+                              },
                             ),
                           ),
                           if (_totalPages > 1)
