@@ -1,42 +1,44 @@
 # Task Management API
 
-A robust and optimized RESTful API for task management built with Express.js and MongoDB. This API provides features for creating, reading, updating, and deleting tasks with advanced filtering, pagination, and sorting capabilities.
+## [Tested on Thunder client]
+
+A RESTful API for task management built with Express.js and MongoDB. This API provides features for creating, reading, updating, and deleting tasks with filtering, pagination, and sorting capabilities.
 
 ## Features
 
 - 🔄 **RESTful API** - Full CRUD operations for tasks
 - 📱 **Pagination & Filtering** - Efficient data retrieval with pagination and filtering
-- 🔍 **Search Capabilities** - Text search on task titles
-- ⚡ **Performance Optimized** - Connection pooling, compression, and query optimization
 - 🛡️ **Input Validation** - Robust validation for all inputs
 - 📊 **Task Priority** - Priority levels for better task organization
 - ⏱️ **Timestamps** - Automatic tracking of creation and update times
 - 🔒 **Error Handling** - Comprehensive error handling and validation
-- 🔄 **Auto Reconnection** - Automatic database reconnection handling
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- MongoDB (v4.4 or higher)
-- npm or yarn package manager
+- Node.js
+- MongoDB
+- npm package manager
 
 ## Installation
 
 1. Clone the repository:
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file in the root directory and these variables (make sure to REPLACE creds with yours):
+
 ```env
 PORT=3000
-MONGODB_URI=mongodb+srv://DATABASE_USERNAME:PASSWORD@YOUR_CLUSTER_NAME.hudulco.mongodb.net/?retryWrites=true&w=majority&appName=YOUR_CLUSTER_NAME
+MONGODB_URI=mongodb+srv://DATABASE_USERNAME:DATABASE_PASSWORD@YOUR_CLUSTER_NAME.hudulco.mongodb.net/?retryWrites=true&w=majority&appName=YOUR_CLUSTER_NAME
 NODE_ENV=development
 ```
 
 4. Start the server:
+
 ```bash
 # Development mode with auto-reload
 npm run dev
@@ -47,16 +49,19 @@ npm run dev
 ### Tasks
 
 #### Get All Tasks
+
 ```http
 GET /api/tasks
 ```
 
 Query Parameters:
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 - `completed` (optional): Filter by completion status (true/false)
 
 Response:
+
 ```json
 {
   "tasks": [
@@ -76,12 +81,16 @@ Response:
 }
 ```
 
+<img src="screenshots/image_5.png" alt="index_req">
+
 #### Get Single Task
+
 ```http
 GET /api/tasks/:id
 ```
 
 Response:
+
 ```json
 {
   "id": "string",
@@ -94,7 +103,10 @@ Response:
 }
 ```
 
+<img src="screenshots/image_4.png" alt="get_req">
+
 #### Create Task
+
 ```http
 POST /api/tasks
 ```
@@ -118,12 +130,16 @@ Content-Type: application/json
 
 Response: Status: 201 Created
 
+<img src="screenshots/image_2.png" alt="post_req">
+
 #### Update Task
+
 ```http
 PATCH /api/tasks/:id
 ```
 
 Request Body:
+
 ```json
 {
   "title": "string",
@@ -134,17 +150,23 @@ Request Body:
 
 Response: Updated task object
 
+<img src="screenshots/image_1.png" alt="patch_req">
+
 #### Delete Task
+
 ```http
 DELETE /api/tasks/:id
 ```
 
 Response:
+
 ```json
 {
   "message": "Task deleted successfully"
 }
 ```
+
+<img src="screenshots/image_3.png" alt="delete_req">
 
 ## Configuration
 
@@ -161,6 +183,7 @@ NODE_ENV=development         # Environment (development/production)
 ### MongoDB Connection Options
 
 The application uses optimized MongoDB connection settings:
+
 - Connection pooling (max 10 connections)
 - Automatic retry on connection failure
 - 5-second server selection timeout
@@ -170,6 +193,7 @@ The application uses optimized MongoDB connection settings:
 - Automatic reconnection on disconnection
 
 Connection Events:
+
 - Error handling for connection issues
 - Automatic reconnection on disconnection
 - Graceful shutdown on application termination
@@ -183,6 +207,7 @@ The API implements comprehensive error handling:
 - 500: Internal Server Error
 
 Error Response Format:
+
 ```json
 {
   "message": "Error message",
@@ -191,6 +216,7 @@ Error Response Format:
 ```
 
 ### Database Error Handling
+
 - Automatic reconnection on connection loss
 - Connection pool management
 - Graceful shutdown handling
@@ -199,6 +225,7 @@ Error Response Format:
 ## Performance Optimizations
 
 1. **Database**
+
    - Connection pooling
    - Indexed fields
    - Optimized queries
@@ -207,6 +234,7 @@ Error Response Format:
    - Automatic reconnection handling
 
 2. **API**
+
    - Response compression
    - Pagination
    - Efficient filtering
@@ -245,4 +273,3 @@ backend-api/
 3. Commit your changes (`git commit -m 'Add [what] feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
- 
