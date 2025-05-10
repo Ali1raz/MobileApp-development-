@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'models/task.dart';
 import 'services/task_service.dart';
 import 'widgets/task_form.dart';
@@ -40,11 +41,39 @@ class _MyHomePageState extends State<MyHomePage> {
   int _totalPages = 1;
   int _totalTasks = 0;
   bool? _filterCompleted;
+  bool _isOnline = true;
 
   @override
   void initState() {
     super.initState();
     _loadTasks();
+    _setupConnectivityListener();
+  }
+
+  void _setupConnectivityListener() {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      final isOnline = result != ConnectivityResult.none;
+      if (isOnline && !_isOnline) {
+        // Connection restored, sync offline changes
+        _syncOfflineChanges();
+      }
+      setState(() {
+        _isOnline = isOnline;
+      });
+    });
+  }
+
+  Future<void> _syncOfflineChanges() async {
+    try {
+      await _taskService.syncOfflineChanges();
+      _loadTasks(); // Reload tasks after sync
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sync failed: ${e.toString()}')));
+      }
+    }
   }
 
   Future<void> _loadTasks() async {
@@ -144,6 +173,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Task Manager"),
         actions: [
+          if (!_isOnline)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(Icons.cloud_off, color: Colors.red),
+            ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadTasks),
         ],
       ),
