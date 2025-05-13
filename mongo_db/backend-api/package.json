@@ -1,9 +1,9 @@
 {
   "name": "backend-api",
   "version": "1.0.0",
-  "main": "app.mjs",
+  "main": "api/app.mjs",
   "scripts": {
-    "dev": "nodemon app.mjs"
+    "dev": "nodemon api/app.mjs"
   },
   "keywords": [],
   "author": "",
