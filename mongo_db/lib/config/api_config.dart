@@ -1,5 +1,7 @@
- class ApiConfig {
-  static String baseUrl = 'http://192.168.236.66:4444/api/tasks';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class ApiConfig {
+  static String baseUrl = dotenv.env['BASE_URL'] ?? '';
 
   static void updateBaseUrl({String? host, String? port}) {
     if (host != null || port != null) {

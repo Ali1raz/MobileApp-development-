@@ -4,8 +4,15 @@ import 'models/task.dart';
 import 'services/task_service.dart';
 import 'widgets/task_form.dart';
 import 'widgets/task_list.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter bindings are initialized
+  try {
+    await dotenv.load(fileName: ".env"); // Explicitly specify the .env file
+  } catch (e) {
+    debugPrint("Failed to load .env file: $e");
+  }
   runApp(const MyApp());
 }
 
