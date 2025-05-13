@@ -1,5 +1,6 @@
 import express from "express";
 import Task from "../models/Task.mjs";
+import { connectToDatabase } from "../lib/db.js";
 
 const router = express.Router();
 
@@ -22,6 +23,8 @@ const validateTaskInput = (req, res, next) => {
 // Get all tasks with pagination and filtering
 router.get("/", async (req, res) => {
   try {
+    await connectToDatabase();
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const completed =
@@ -60,6 +63,8 @@ router.get("/", async (req, res) => {
 // Get a single task by ID
 router.get("/:id", async (req, res) => {
   try {
+    await connectToDatabase();
+
     const task = await Task.findById(req.params.id).lean();
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -78,6 +83,8 @@ router.get("/:id", async (req, res) => {
 // Create a new task
 router.post("/", validateTaskInput, async (req, res) => {
   try {
+    await connectToDatabase();
+
     const task = new Task({
       title: req.body.title,
       completed: req.body.completed || false,
@@ -95,6 +102,8 @@ router.post("/", validateTaskInput, async (req, res) => {
 // Update a task
 router.patch("/:id", validateTaskInput, async (req, res) => {
   try {
+    await connectToDatabase();
+
     const updates = {};
     if (req.body.title !== undefined) updates.title = req.body.title;
     if (req.body.completed !== undefined)
@@ -124,6 +133,8 @@ router.patch("/:id", validateTaskInput, async (req, res) => {
 // Delete a task
 router.delete("/:id", async (req, res) => {
   try {
+    await connectToDatabase();
+
     const task = await Task.findByIdAndDelete(req.params.id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
