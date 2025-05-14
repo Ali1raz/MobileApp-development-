@@ -4,8 +4,6 @@
 
 > <a href="https://www.youtube.com/watch?v=nH9E25nkk3I" target="blank">Reference video</a>
 
-
-
 A RESTful API for task management built with Express.js and MongoDB. This API provides features for creating, reading, updating, and deleting tasks with filtering, pagination, and sorting capabilities.
 
 ## Features
@@ -48,7 +46,39 @@ NODE_ENV=development
 npm run dev
 ```
 
-## API
+# Deploy to Vercel
+
+## Install Vercel CLI globally:
+
+```bash
+npm i -g vercel
+```
+
+## Login to your Vercel account:
+
+```bash
+vercel login
+```
+
+Then test your application locally:
+
+```bash
+vercel dev
+```
+
+Now visit `http://localhost:3000` to see your Express app in action.
+
+## Deploy to Vercel:
+
+```bash
+vercel
+# or
+vercel --prod
+```
+
+Follow the instructions and vercel will build and deploy your application. Upon completion, you'll receive a URL where your app is live.
+
+# API
 
 ### Tasks
 
