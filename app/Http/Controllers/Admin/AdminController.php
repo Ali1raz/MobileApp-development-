@@ -64,6 +64,12 @@ class AdminController extends Controller
 
         $student = User::where('registration_number', $registration_number)->first();
 
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found'
+            ]);
+        }
+
         return response()->json([
             'student' => $student
         ]);
