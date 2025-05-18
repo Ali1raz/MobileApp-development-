@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+    // all routes for admin only
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
 });
+
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
