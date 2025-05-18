@@ -33,6 +33,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::delete('/students/{registration_number}', [AdminController::class, 'deleteStudent']);
 
     Route::get('/profile', [UserController::class, 'profile']);
+
+    Route::put('/profile', [UserController::class, 'updateProfile']);
+
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'createTask']);
     Route::post('/tasks/{taskId}/progress', [TaskController::class, 'taskProgress']);
@@ -44,6 +47,7 @@ Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(fu
     Route::get('/dashboard', [StudentController::class, 'dashboard']);
 
     Route::get('/profile', [UserController::class, 'profile']);
+    Route::put('/profile', [UserController::class, 'updateProfile']);
 
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
