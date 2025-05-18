@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Student\StudentController;
 use App\Http\Controllers\Task\TaskController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::put('/students/{registration_number}', [AdminController::class, 'updateStudent']);
     Route::delete('/students/{registration_number}', [AdminController::class, 'deleteStudent']);
 
+    Route::get('/profile', [UserController::class, 'profile']);
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'createTask']);
     Route::post('/tasks/{taskId}/progress', [TaskController::class, 'taskProgress']);
@@ -40,6 +42,9 @@ Route::post('/student/login', [StudentController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard']);
+
+    Route::get('/profile', [UserController::class, 'profile']);
+
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
