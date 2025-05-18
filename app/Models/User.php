@@ -55,4 +55,11 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_STUDENT;
     }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'student_task', 'registration_number', 'task_id', 'registration_number', 'id')
+            ->withPivot('is_completed')
+            ->withTimestamps();
+    }
 }
