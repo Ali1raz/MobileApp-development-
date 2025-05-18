@@ -74,4 +74,59 @@ class AdminController extends Controller
             'student' => $student
         ]);
     }
+
+    public function updateStudent(Request $req, string $registration_number)
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::where('registration_number', $registration_number)->where('role', User::ROLE_STUDENT)->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found'
+            ]);
+        }
+
+        $req->validate([
+            'name' => 'sometimes|string',
+            'email' => 'sometimes|email|unique:users,email',
+            'password' => 'sometimes|string',
+        ]);
+
+        $student->name = $req->name ?? $student->name;
+        $student->email = $req->email ?? $student->email;
+
+        if ($req->filled('password')) {
+            $student->password = Hash::make('password');
+        }
+
+        $student->save();
+
+        return response()->json([
+            'message' => 'Student updated successfully',
+            'student' => $student
+        ]);
+    }
+
+    public function deleteStudent(Request $req, string $registration_number)
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::where('registration_number', $registration_number)->where('role', User::ROLE_STUDENT)->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found'
+            ]);
+        }
+
+        $student->delete();
+        return response()->json([
+            'message' => 'Student delted successfully',
+        ]);
+    }
 }
