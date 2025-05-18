@@ -7,12 +7,14 @@ class TaskList extends StatelessWidget {
   final List<Task> tasks;
   final Function(Task) onTaskToggled;
   final Function(Task) onTaskUpdated;
+  final Function(Task) onTaskDeleted; // Add a callback for task deletion
 
   const TaskList({
     super.key, 
     required this.tasks, 
     required this.onTaskToggled,
     required this.onTaskUpdated,
+    required this.onTaskDeleted, // Initialize the callback
   });
 
   String _formatDate(DateTime? date) {
@@ -28,6 +30,29 @@ class TaskList extends StatelessWidget {
           task: task,
           onTaskUpdated: onTaskUpdated,
         ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Task task) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: const Text('Are you sure you want to delete this task?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onTaskDeleted(task); // Call the delete callback
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
@@ -88,6 +113,7 @@ class TaskList extends StatelessWidget {
               ),
             ),
             onTap: () => _showTaskDetails(context, task),
+            onLongPress: () => _showDeleteConfirmation(context, task), // Add long-press action
           ),
         );
       },

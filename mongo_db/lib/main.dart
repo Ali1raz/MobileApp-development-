@@ -165,6 +165,33 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _deleteTask(Task task) async {
+    try {
+      setState(() {
+        _error = null;
+      });
+      await _taskService.deleteTask(task.id!); // Call the delete API
+      setState(() {
+        _tasks.removeWhere((t) => t.id == task.id); // Remove the task locally
+        _totalTasks--;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task deleted successfully')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
+    }
+  }
+
   void _setFilter(bool? completed) {
     setState(() {
       _filterCompleted = completed;
@@ -233,57 +260,55 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : Column(
-                        children: [
-                          Expanded(
-                            child: TaskList(
-                              tasks: _tasks,
-                              onTaskToggled: _toggleTask,
-                              onTaskUpdated: (updatedTask) {
-                                setState(() {
-                                  final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
-                                  if (index != -1) {
-                                    _tasks[index] = updatedTask;
-                                  }
-                                });
-                              },
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: TaskList(
+                            tasks: _tasks,
+                            onTaskToggled: _toggleTask,
+                            onTaskUpdated: (updatedTask) {
+                              setState(() {
+                                final index = _tasks.indexWhere((t) => t.id == updatedTask.id);
+                                if (index != -1) {
+                                  _tasks[index] = updatedTask;
+                                }
+                              });
+                            },
+                            onTaskDeleted: _deleteTask, // Pass the delete callback
+                          ),
+                        ),
+                        if (_totalPages > 1)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.chevron_left),
+                                  onPressed: _currentPage > 1
+                                      ? () {
+                                          setState(() => _currentPage--);
+                                          _loadTasks();
+                                        }
+                                      : null,
+                                ),
+                                Text('Page $_currentPage of $_totalPages'),
+                                IconButton(
+                                  icon: const Icon(Icons.chevron_right),
+                                  onPressed: _currentPage < _totalPages
+                                      ? () {
+                                          setState(() => _currentPage++);
+                                          _loadTasks();
+                                        }
+                                      : null,
+                                ),
+                              ],
                             ),
                           ),
-                          if (_totalPages > 1)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.chevron_left),
-                                    onPressed:
-                                        _currentPage > 1
-                                            ? () {
-                                              setState(() => _currentPage--);
-                                              _loadTasks();
-                                            }
-                                            : null,
-                                  ),
-                                  Text('Page $_currentPage of $_totalPages'),
-                                  IconButton(
-                                    icon: const Icon(Icons.chevron_right),
-                                    onPressed:
-                                        _currentPage < _totalPages
-                                            ? () {
-                                              setState(() => _currentPage++);
-                                              _loadTasks();
-                                            }
-                                            : null,
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
+                      ],
+                    ),
             ),
           ],
         ),
