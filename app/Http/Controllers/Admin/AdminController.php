@@ -42,4 +42,17 @@ class AdminController extends Controller
             'student' => $user,
         ]);
     }
+
+    public function listStudents()
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $students = User::where('role', User::ROLE_STUDENT)->get();
+
+        return response()->json([
+            'students' => $students
+        ]);
+    }
 }

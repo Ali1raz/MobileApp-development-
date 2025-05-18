@@ -23,6 +23,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     // all routes for admin only
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::post('register-student', [AdminController::class, 'registerStudent']);
+    Route::get('/students', [AdminController::class, 'listStudents']);
 });
 
 Route::post('/student/login', [StudentController::class, 'store']);
