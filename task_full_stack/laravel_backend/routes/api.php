@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Student\StudentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,10 +17,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
+
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     // all routes for admin only
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::post('register-student', [AdminController::class, 'registerStudent']);
 });
 
-Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/student/login', [StudentController::class, 'store']);
+
+Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(function () {
+    // all routes for admin only
+    Route::get('/dashboard', [StudentController::class, 'dashboard']);
+});
