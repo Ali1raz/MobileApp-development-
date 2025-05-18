@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
     Route::post('register-student', [AdminController::class, 'registerStudent']);
     Route::get('/students', [AdminController::class, 'listStudents']);
+    Route::get('/students/{registration_number}', [AdminController::class, 'viewStudent']);
 });
 
 Route::post('/student/login', [StudentController::class, 'store']);

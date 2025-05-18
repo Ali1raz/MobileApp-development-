@@ -55,4 +55,17 @@ class AdminController extends Controller
             'students' => $students
         ]);
     }
+
+    public function viewStudent(string $registration_number)
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::where('registration_number', $registration_number)->first();
+
+        return response()->json([
+            'student' => $student
+        ]);
+    }
 }
