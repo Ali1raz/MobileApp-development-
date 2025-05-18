@@ -22,9 +22,13 @@ Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     // all routes for admin only
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
+
     Route::post('register-student', [AdminController::class, 'registerStudent']);
     Route::get('/students', [AdminController::class, 'listStudents']);
     Route::get('/students/{registration_number}', [AdminController::class, 'viewStudent']);
+
+    Route::put('/students/{registration_number}', [AdminController::class, 'updateStudent']);
+    Route::delete('/students/{registration_number}', [AdminController::class, 'deleteStudent']);
 });
 
 Route::post('/student/login', [StudentController::class, 'store']);
