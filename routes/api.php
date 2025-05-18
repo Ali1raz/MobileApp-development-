@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     // all routes for admin only
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::post('register-student', [AdminController::class, 'registerStudent']);
 });
 
 Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
