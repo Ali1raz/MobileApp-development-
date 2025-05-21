@@ -82,13 +82,58 @@ class TaskController extends Controller
 
     public function markComplete($taskId)
     {
-        $reg = auth()->user()->registration_number;
+        try {
+            $user = auth()->user();
+            $task = Task::findOrFail($taskId);
 
-        DB::table('student_task')
-            ->where('task_id', $taskId)
-            ->where('registration_number', $reg)
-            ->update(['is_completed' => true]);
+            // Check if the task is assigned to the student
+            $studentTask = DB::table('student_task')
+                ->where('task_id', $taskId)
+                ->where('registration_number', $user->registration_number)
+                ->first();
 
-        return response()->json(['message' => 'Task marked complete']);
+            if (!$studentTask) {
+                return response()->json([
+                    'message' => 'Task not assigned to you',
+                    'error' => 'TASK_NOT_ASSIGNED'
+                ], 403);
+            }
+
+            // Check if task is already completed
+            if ($studentTask->is_completed) {
+                return response()->json([
+                    'message' => 'Task already completed',
+                    'error' => 'TASK_ALREADY_COMPLETED'
+                ], 400);
+            }
+
+            // Mark task as completed
+            DB::table('student_task')
+                ->where('task_id', $taskId)
+                ->where('registration_number', $user->registration_number)
+                ->update([
+                    'is_completed' => true,
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'message' => 'Task marked as complete',
+                'task' => [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'completed_at' => now()
+                ]
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Task not found',
+                'error' => 'TASK_NOT_FOUND'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while completing the task',
+                'error' => 'INTERNAL_SERVER_ERROR'
+            ], 500);
+        }
     }
 }
