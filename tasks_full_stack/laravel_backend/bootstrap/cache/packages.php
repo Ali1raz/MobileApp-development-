@@ -1,4 +1,11 @@
 <?php return array (
+  'fruitcake/laravel-cors' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Fruitcake\\Cors\\CorsServiceProvider',
+    ),
+  ),
   'laravel/breeze' => 
   array (
     'providers' => 
