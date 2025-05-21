@@ -13,9 +13,23 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        return response()->json([
-            'message' => 'Welcome to admin dashboard'
-        ]);
+        try {
+            $stats = [
+                'total_students' => User::where('role', User::ROLE_STUDENT)->count(),
+                'total_tasks' => Task::count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'stats' => $stats
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching statistics',
+                'error' => 'INTERNAL_SERVER_ERROR'
+            ], 500);
+        }
     }
 
     public function registerStudent(Request $req)
