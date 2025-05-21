@@ -6,28 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropForeign(['student_id']);
-            $table->dropColumn('student_id');
+            if (Schema::hasColumn('tasks', 'student_id')) {
+                $sm = Schema::getConnection()->getDoctrineSchemaManager();
+                $foreignKeys = $sm->listTableForeignKeys('tasks');
+
+                foreach ($foreignKeys as $foreignKey) {
+                    if ($foreignKey->getLocalColumns() === ['student_id']) {
+                        $table->dropForeign(['student_id']);
+                        break;
+                    }
+                }
+
+                $table->dropColumn('student_id');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('student_id')->nullable();
+            $table->foreign('student_id')->references('id')->on('users');
         });
     }
 };
