@@ -5,6 +5,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/students_screen.dart';
 import 'screens/tasks_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,27 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: const AuthWrapper(),
+        onGenerateRoute: (settings) {
+          switch (settings.name) {
+            case '/':
+              return MaterialPageRoute(builder: (_) => const AuthWrapper());
+            case '/login':
+              return MaterialPageRoute(builder: (_) => const LoginScreen());
+            case '/dashboard':
+              return MaterialPageRoute(builder: (_) => const DashboardScreen());
+            case '/students':
+              return MaterialPageRoute(builder: (_) => const StudentsScreen());
+            case '/tasks':
+              return MaterialPageRoute(builder: (_) => const TasksScreen());
+            case '/profile':
+              return MaterialPageRoute(builder: (_) => const ProfileScreen());
+            default:
+              return MaterialPageRoute(builder: (_) => const AuthWrapper());
+          }
+        },
+        onUnknownRoute: (settings) {
+          return MaterialPageRoute(builder: (_) => const AuthWrapper());
+        },
       ),
     );
   }
@@ -64,6 +86,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
       const DashboardScreen(),
       const StudentsScreen(),
       const TasksScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -82,6 +105,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           ),
           NavigationDestination(icon: Icon(Icons.people), label: 'Students'),
           NavigationDestination(icon: Icon(Icons.task), label: 'Tasks'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
