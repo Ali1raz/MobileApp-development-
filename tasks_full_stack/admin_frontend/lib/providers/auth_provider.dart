@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
+import '../services/student_service.dart';
+import '../services/task_service.dart';
 
 class AuthProvider with ChangeNotifier {
   String? _token;
@@ -10,8 +12,14 @@ class AuthProvider with ChangeNotifier {
   List<Map<String, dynamic>>? _students;
   List<Map<String, dynamic>>? _tasks;
   bool _isLoading = false;
+  bool _isInitialized = false;
+
+  late ApiService _api;
+  late StudentService _studentService;
+  late TaskService _taskService;
 
   bool get isAuthenticated => _token != null;
+  bool get isInitialized => _isInitialized;
   String? get token => _token;
   Map<String, dynamic>? get userData => _userData;
   Map<String, dynamic>? get dashboardData => _dashboardData;
@@ -19,12 +27,15 @@ class AuthProvider with ChangeNotifier {
   List<Map<String, dynamic>>? get tasks => _tasks;
   bool get isLoading => _isLoading;
 
-  static const String baseUrl =
-      'http://192.168.137.99:8000/api'; //replace with machine ip
-
   AuthProvider() {
+    _initializeServices();
     initAuth();
-    debugPrint("AuthProvider initialized");
+  }
+
+  void _initializeServices() {
+    _api = ApiService(token: _token);
+    _studentService = StudentService(_token);
+    _taskService = TaskService(_token);
   }
 
   Future<void> initAuth() async {
@@ -35,20 +46,22 @@ class AuthProvider with ChangeNotifier {
 
       if (_token != null && userDataStr != null) {
         _userData = json.decode(userDataStr);
-        // Verify token is still valid
+        _initializeServices();
+
         try {
           await fetchUserData();
           await fetchDashboardData();
         } catch (e) {
-          // If token is invalid, clear everything
           await logout();
         }
       } else {
         await logout();
       }
-      notifyListeners();
     } catch (e) {
       await logout();
+    } finally {
+      _isInitialized = true;
+      notifyListeners();
     }
   }
 
@@ -57,6 +70,7 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
       _token = token;
+      _initializeServices();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to save authentication token');
@@ -64,28 +78,30 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> login(String email, String password) async {
+    if (isAuthenticated) {
+      throw Exception('Already logged in');
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/admin/login'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'email': email, 'password': password}),
-      );
+      final response = await _api.post('/admin/login', {
+        'email': email,
+        'password': password,
+      });
 
-      final data = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        await _saveToken(data['token']);
-        await fetchUserData();
-        await fetchDashboardData();
-      } else {
-        throw data['message'] ?? 'Login failed';
+      if (response['token'] == null) {
+        throw Exception('No token received from server');
       }
+
+      await _saveToken(response['token']);
+      _userData = response['user'];
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userData', json.encode(_userData));
+
+      await fetchDashboardData();
     } catch (e) {
       throw Exception(e.toString());
     } finally {
@@ -98,26 +114,15 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) return;
 
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/profile'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_token',
-        },
-      );
-
-      final data = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        _userData = data;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userData', json.encode(_userData));
-        notifyListeners();
-      } else {
-        throw data['message'] ?? 'Failed to fetch user data';
-      }
+      final response = await _api.get('/admin/profile');
+      _userData = response;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userData', json.encode(_userData));
+      notifyListeners();
     } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
       throw Exception('Failed to fetch user data: $e');
     }
   }
@@ -126,24 +131,13 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) return;
 
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/dashboard'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_token',
-        },
-      );
-
-      final data = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        _dashboardData = data;
-        notifyListeners();
-      } else {
-        throw data['message'] ?? 'Failed to fetch dashboard data';
-      }
+      final response = await _api.get('/admin/dashboard');
+      _dashboardData = response;
+      notifyListeners();
     } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
       throw Exception('Failed to fetch dashboard data: $e');
     }
   }
@@ -152,27 +146,19 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) throw Exception('Not authenticated');
 
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/admin/profile'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_token',
-        },
-        body: json.encode({'name': name, 'email': email}),
-      );
+      final response = await _api.put('/admin/profile', {
+        'name': name,
+        'email': email,
+      });
 
-      final data = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        _userData = data;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userData', json.encode(_userData));
-        notifyListeners();
-      } else {
-        throw data['message'] ?? 'Failed to update profile';
-      }
+      _userData = response;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userData', json.encode(_userData));
+      notifyListeners();
     } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
       throw Exception('Failed to update profile: $e');
     }
   }
@@ -182,114 +168,43 @@ class AuthProvider with ChangeNotifier {
       _token = null;
       _userData = null;
       _dashboardData = null;
+      _students = null;
+      _tasks = null;
 
-      // Clear shared preferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('token');
       await prefs.remove('userData');
 
+      _initializeServices();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to logout properly');
     }
   }
 
-  Future<void> checkAuth() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('token');
-    final userDataStr = prefs.getString('userData');
-    if (userDataStr != null) {
-      _userData = json.decode(userDataStr);
-    }
-    notifyListeners();
-  }
-
   Future<void> fetchStudents() async {
     if (_token == null) throw Exception('Not authenticated');
-
     try {
-      debugPrint('Token: $_token');
-      debugPrint('Fetching students from: $baseUrl/admin/students');
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/students'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response headers: ${response.headers}');
-      debugPrint('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        debugPrint('Decoded data: $data');
-
-        if (data['success'] == true) {
-          if (data['students'] != null) {
-            _students = List<Map<String, dynamic>>.from(data['students']);
-            debugPrint('Parsed students: $_students');
-            notifyListeners();
-          } else {
-            throw Exception('No students data in response');
-          }
-        } else {
-          throw Exception(data['message'] ?? 'Failed to fetch students');
-        }
-      } else if (response.statusCode == 401) {
-        await logout();
-        throw Exception('Session expired. Please login again.');
-      } else {
-        final errorData = json.decode(response.body);
-        throw Exception(
-          errorData['message'] ??
-              'Failed to fetch students (Status: ${response.statusCode})',
-        );
-      }
+      _students = await _studentService.getStudents();
+      notifyListeners();
     } catch (e) {
-      debugPrint('Error fetching students: $e');
-      throw Exception('Failed to fetch students: $e');
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      rethrow;
     }
   }
 
   Future<void> fetchTasks() async {
     if (_token == null) throw Exception('Not authenticated');
-
     try {
-      debugPrint('Fetching tasks...');
-      final response = await http.get(
-        Uri.parse('$baseUrl/admin/tasks'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Accept': 'application/json',
-        },
-      );
-
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          _tasks = List<Map<String, dynamic>>.from(data['tasks']);
-          notifyListeners();
-        } else {
-          throw Exception(data['message'] ?? 'Failed to fetch tasks');
-        }
-      } else if (response.statusCode == 401) {
-        // Token expired or invalid
-        await logout();
-        throw Exception('Session expired. Please login again.');
-      } else {
-        final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Failed to fetch tasks');
-      }
+      _tasks = await _taskService.getTasks();
+      notifyListeners();
     } catch (e) {
-      debugPrint('Error fetching tasks: $e');
-      throw Exception('Failed to fetch tasks: $e');
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      rethrow;
     }
   }
 }

@@ -52,11 +52,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
-    if (auth.isLoading) {
+    if (!auth.isInitialized) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (auth.token == null) {
+    if (!auth.isAuthenticated) {
       return const LoginScreen();
     }
 
