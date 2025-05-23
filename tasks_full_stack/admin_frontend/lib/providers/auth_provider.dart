@@ -216,4 +216,32 @@ class AuthProvider with ChangeNotifier {
       throw Exception('Failed to register student: $e');
     }
   }
+
+  Future<Map<String, dynamic>> getStudentDetails(
+    String registrationNumber,
+  ) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      return await _studentService.getStudent(registrationNumber);
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to fetch student details: $e');
+    }
+  }
+
+  Future<void> deleteStudent(String registrationNumber) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      await _studentService.deleteStudent(registrationNumber);
+      // Refresh students list after deletion
+      await fetchStudents();
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to delete student: $e');
+    }
+  }
 }
