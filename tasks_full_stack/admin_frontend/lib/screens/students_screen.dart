@@ -122,16 +122,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ? const Center(child: CircularProgressIndicator())
               : _errorMessage != null
               ? _buildErrorWidget()
-              : RefreshIndicator(
-                onRefresh: _fetchStudents,
-                child:
-                    auth.students != null && auth.students!.isNotEmpty
-                        ? _buildStudentList(auth.students!)
-                        : const Center(child: Text('No students found')),
-              ),
+              : _buildStudentList(auth.students!),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Show add student dialog
+          Navigator.pushNamed(context, '/add-student');
         },
         child: const Icon(Icons.add),
       ),

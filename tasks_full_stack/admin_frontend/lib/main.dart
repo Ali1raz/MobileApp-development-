@@ -6,6 +6,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/students_screen.dart';
 import 'screens/tasks_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/add_student_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +41,10 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(builder: (_) => const TasksScreen());
             case '/profile':
               return MaterialPageRoute(builder: (_) => const ProfileScreen());
+            case '/add-student':
+              return MaterialPageRoute(
+                builder: (_) => const AddStudentScreen(),
+              );
             default:
               return MaterialPageRoute(builder: (_) => const AuthWrapper());
           }

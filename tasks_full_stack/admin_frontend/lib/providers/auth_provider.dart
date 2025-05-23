@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../services/student_service.dart';
 import '../services/task_service.dart';
+import '../services/user_service.dart';
 
 class AuthProvider with ChangeNotifier {
   String? _token;
@@ -14,7 +15,8 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isInitialized = false;
 
-  late ApiService _api;
+  late ApiService api;
+  late UserService _userService;
   late StudentService _studentService;
   late TaskService _taskService;
 
@@ -33,7 +35,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   void _initializeServices() {
-    _api = ApiService(token: _token);
+    api = ApiService(token: _token);
+    _userService = UserService(_token);
     _studentService = StudentService(_token);
     _taskService = TaskService(_token);
   }
@@ -86,15 +89,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _api.post('/admin/login', {
-        'email': email,
-        'password': password,
-      });
-
-      if (response['token'] == null) {
-        throw Exception('No token received from server');
-      }
-
+      final response = await _userService.login(email, password);
       await _saveToken(response['token']);
       _userData = response['user'];
 
@@ -114,8 +109,7 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) return;
 
     try {
-      final response = await _api.get('/admin/profile');
-      _userData = response;
+      _userData = await _userService.fetchUserData();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('userData', json.encode(_userData));
       notifyListeners();
@@ -131,8 +125,7 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) return;
 
     try {
-      final response = await _api.get('/admin/dashboard');
-      _dashboardData = response;
+      _dashboardData = await _userService.fetchDashboardData();
       notifyListeners();
     } catch (e) {
       if (e.toString().contains('Session expired')) {
@@ -146,12 +139,7 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) throw Exception('Not authenticated');
 
     try {
-      final response = await _api.put('/admin/profile', {
-        'name': name,
-        'email': email,
-      });
-
-      _userData = response;
+      _userData = await _userService.updateProfile(name, email);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('userData', json.encode(_userData));
       notifyListeners();
@@ -204,7 +192,28 @@ class AuthProvider with ChangeNotifier {
       if (e.toString().contains('Session expired')) {
         await logout();
       }
-      rethrow;
+      throw Exception('Failed to fetch tasks: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> registerStudent({
+    required String name,
+    required String email,
+  }) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      final response = await _studentService.registerStudent(
+        name: name,
+        email: email,
+      );
+      // Refresh students list after adding new student
+      await fetchStudents();
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to register student: $e');
     }
   }
 }

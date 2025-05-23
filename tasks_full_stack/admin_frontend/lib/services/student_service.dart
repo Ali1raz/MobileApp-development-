@@ -33,7 +33,7 @@ class StudentService {
     }
   }
 
-  Future<Map<String, dynamic>> createStudent({
+  Future<Map<String, dynamic>> registerStudent({
     required String name,
     required String email,
   }) async {
@@ -45,7 +45,7 @@ class StudentService {
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('Error creating student: $e');
+        print('Error registering student: $e');
       }
       rethrow;
     }
