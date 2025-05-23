@@ -244,4 +244,26 @@ class AuthProvider with ChangeNotifier {
       throw Exception('Failed to delete student: $e');
     }
   }
+
+  Future<void> updateStudent(
+    String registrationNumber, {
+    required String name,
+    required String email,
+  }) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      await _studentService.updateStudent(
+        registrationNumber,
+        name: name,
+        email: email,
+      );
+      // Refresh students list after update
+      await fetchStudents();
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to update student: $e');
+    }
+  }
 }

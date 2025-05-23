@@ -106,7 +106,7 @@ class AdminController extends Controller
 
         $req->validate([
             'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email',
+            'email' => 'sometimes|email|unique:users,email,' . $student->id,
             'password' => 'sometimes|string',
         ]);
 

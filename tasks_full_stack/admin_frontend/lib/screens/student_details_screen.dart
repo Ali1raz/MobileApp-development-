@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'edit_student_screen.dart';
 
 class StudentDetailsScreen extends StatefulWidget {
   final String registrationNumber;
@@ -188,8 +189,20 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Navigate to edit student screen
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => EditStudentScreen(
+                              registrationNumber: widget.registrationNumber,
+                              studentData: _studentData!,
+                            ),
+                      ),
+                    );
+                    if (result == true && mounted) {
+                      _fetchStudentDetails();
+                    }
                   },
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit'),
