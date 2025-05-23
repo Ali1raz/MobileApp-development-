@@ -117,16 +117,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Students'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchStudents,
-          ),
-        ],
-      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

@@ -42,10 +42,6 @@ class _TasksScreenState extends State<TasksScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tasks'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

@@ -70,6 +70,31 @@ class _AuthWrapperState extends State<AuthWrapper> {
     });
   }
 
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await Provider.of<AuthProvider>(context, listen: false).logout();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -86,10 +111,40 @@ class _AuthWrapperState extends State<AuthWrapper> {
       const DashboardScreen(),
       const StudentsScreen(),
       const TasksScreen(),
-      const ProfileScreen(),
     ];
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              switch (value) {
+                case 'profile':
+                  Navigator.pushNamed(context, '/profile');
+                  break;
+                case 'logout':
+                  _showLogoutConfirmation(context);
+                  break;
+              }
+            },
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_outline),
+                        SizedBox(width: 8),
+                        Text('View Profile'),
+                      ],
+                    ),
+                  ),
+                ],
+          ),
+        ],
+      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
@@ -105,7 +160,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
           ),
           NavigationDestination(icon: Icon(Icons.people), label: 'Students'),
           NavigationDestination(icon: Icon(Icons.task), label: 'Tasks'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
