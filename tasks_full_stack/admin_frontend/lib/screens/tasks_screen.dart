@@ -54,6 +54,18 @@ class _TasksScreenState extends State<TasksScreen> {
                           itemCount: auth.tasks!.length,
                           itemBuilder: (context, index) {
                             final task = auth.tasks![index];
+                            final students =
+                                task['students'] as List<dynamic>? ?? [];
+                            final completedCount =
+                                students
+                                    .where(
+                                      (student) =>
+                                          student['pivot']?['is_completed'] ==
+                                          1,
+                                    )
+                                    .length;
+                            final totalStudents = students.length;
+
                             return Card(
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -76,11 +88,40 @@ class _TasksScreenState extends State<TasksScreen> {
                                   ),
                                 ),
                                 title: Text(task['title'] ?? ''),
-                                subtitle: Text(
-                                  'Due: ${task['due_date'] ?? 'No due date'}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Due: ${task['due_date'] ?? 'No due date'}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    LinearProgressIndicator(
+                                      value:
+                                          totalStudents > 0
+                                              ? completedCount / totalStudents
+                                              : 0,
+                                      backgroundColor: Colors.grey[200],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        completedCount == totalStudents
+                                            ? Colors.green
+                                            : Colors.blue,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Progress: $completedCount/$totalStudents completed',
+                                      style: TextStyle(
+                                        color:
+                                            completedCount == totalStudents
+                                                ? Colors.green
+                                                : Colors.blue,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 children: [
                                   Padding(
@@ -102,35 +143,109 @@ class _TasksScreenState extends State<TasksScreen> {
                                               'No description',
                                         ),
                                         const SizedBox(height: 16),
-                                        Text(
-                                          'Assigned Students:',
-                                          style:
-                                              Theme.of(
-                                                context,
-                                              ).textTheme.titleMedium,
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Assigned Students:',
+                                              style:
+                                                  Theme.of(
+                                                    context,
+                                                  ).textTheme.titleMedium,
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    completedCount ==
+                                                            totalStudents
+                                                        ? Colors.green
+                                                            .withOpacity(0.1)
+                                                        : Colors.blue
+                                                            .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                '$completedCount/$totalStudents completed',
+                                                style: TextStyle(
+                                                  color:
+                                                      completedCount ==
+                                                              totalStudents
+                                                          ? Colors.green
+                                                          : Colors.blue,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         const SizedBox(height: 8),
-                                        if (task['students'] != null &&
-                                            task['students'].isNotEmpty)
-                                          ...task['students'].map<Widget>(
-                                            (student) => ListTile(
-                                              dense: true,
-                                              leading: const Icon(Icons.person),
-                                              title: Text(
-                                                student['name'] ?? '',
+                                        if (students.isNotEmpty)
+                                          ...students.map<Widget>(
+                                            (student) => Card(
+                                              margin: const EdgeInsets.only(
+                                                bottom: 8,
                                               ),
-                                              subtitle: Text(
-                                                student['registration_number'] ??
-                                                    '',
+                                              child: ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundColor:
+                                                      student['pivot']?['is_completed'] ==
+                                                              1
+                                                          ? Colors.green
+                                                          : Colors.grey,
+                                                  child: Icon(
+                                                    student['pivot']?['is_completed'] ==
+                                                            1
+                                                        ? Icons.check
+                                                        : Icons.person,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  student['name'] ?? '',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        student['pivot']?['is_completed'] ==
+                                                                1
+                                                            ? Colors.green
+                                                            : null,
+                                                  ),
+                                                ),
+                                                subtitle: Text(
+                                                  student['registration_number'] ??
+                                                      '',
+                                                ),
+                                                trailing:
+                                                    student['pivot']?['is_completed'] ==
+                                                            1
+                                                        ? const Chip(
+                                                          label: Text(
+                                                            'Completed',
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.green,
+                                                          labelStyle: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        )
+                                                        : const Chip(
+                                                          label: Text(
+                                                            'Pending',
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.orange,
+                                                          labelStyle: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                               ),
-                                              trailing:
-                                                  student['pivot']?['is_completed'] ==
-                                                          1
-                                                      ? const Icon(
-                                                        Icons.check_circle,
-                                                        color: Colors.green,
-                                                      )
-                                                      : null,
                                             ),
                                           )
                                         else
