@@ -77,22 +77,6 @@ class TaskService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> markTaskComplete(int taskId) async {
-    try {
-      final response = await _api.post('/student/tasks/$taskId/complete', {});
-      await fetchTasks(); // Refresh the tasks list
-      return response;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error marking task complete: $e');
-      }
-      if (e.toString().contains('Session expired')) {
-        throw Exception('Session expired. Please login again.');
-      }
-      rethrow;
-    }
-  }
-
   void clear() {
     _tasks = null;
     notifyListeners();

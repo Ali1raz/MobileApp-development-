@@ -16,6 +16,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   Map<String, dynamic>? _studentData;
+  List<Map<String, dynamic>>? _studentTasks;
 
   @override
   void initState() {
@@ -32,9 +33,19 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
     });
 
     try {
-      final studentService =
-          Provider.of<AuthProvider>(context, listen: false).studentService;
-      _studentData = await studentService.getStudent(widget.registrationNumber);
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      _studentData = await auth.studentService.getStudent(
+        widget.registrationNumber,
+      );
+      await auth.fetchTasks();
+      _studentTasks =
+          auth.tasks?.where((task) {
+            final students = task['students'] as List<dynamic>? ?? [];
+            return students.any(
+              (student) =>
+                  student['registration_number'] == widget.registrationNumber,
+            );
+          }).toList();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -224,6 +235,87 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          Text('Assigned Tasks', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          if (_studentTasks != null && _studentTasks!.isNotEmpty)
+            ..._studentTasks!.map((task) {
+              final studentData = (task['students'] as List<dynamic>)
+                  .firstWhere(
+                    (s) =>
+                        s['registration_number'] == widget.registrationNumber,
+                  );
+              final isCompleted = studentData['pivot']?['is_completed'] == 1;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ExpansionTile(
+                  leading: CircleAvatar(
+                    backgroundColor: isCompleted ? Colors.green : Colors.orange,
+                    child: Icon(
+                      isCompleted ? Icons.check : Icons.schedule,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    task['title'] ?? 'No Title',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isCompleted ? Colors.green : null,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Due: ${task['due_date'] ?? 'No due date'}',
+                    style: TextStyle(
+                      color: isCompleted ? Colors.green : Colors.orange,
+                    ),
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Description:',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(task['description'] ?? 'No description'),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Status:',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Chip(
+                                label: Text(
+                                  isCompleted ? 'Completed' : 'Pending',
+                                ),
+                                backgroundColor:
+                                    isCompleted ? Colors.green : Colors.orange,
+                                labelStyle: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            })
+          else
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: Text('No tasks assigned')),
+              ),
+            ),
         ],
       ),
     );
