@@ -10,7 +10,6 @@ class AuthProvider with ChangeNotifier {
   String? _token;
   Map<String, dynamic>? _userData;
   Map<String, dynamic>? _dashboardData;
-  List<Map<String, dynamic>>? _students;
   List<Map<String, dynamic>>? _tasks;
   bool _isLoading = false;
   bool _isInitialized = false;
@@ -25,9 +24,9 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   Map<String, dynamic>? get userData => _userData;
   Map<String, dynamic>? get dashboardData => _dashboardData;
-  List<Map<String, dynamic>>? get students => _students;
   List<Map<String, dynamic>>? get tasks => _tasks;
   bool get isLoading => _isLoading;
+  StudentService get studentService => _studentService;
 
   AuthProvider() {
     _initializeServices();
@@ -156,7 +155,6 @@ class AuthProvider with ChangeNotifier {
       _token = null;
       _userData = null;
       _dashboardData = null;
-      _students = null;
       _tasks = null;
 
       final prefs = await SharedPreferences.getInstance();
@@ -164,25 +162,14 @@ class AuthProvider with ChangeNotifier {
       await prefs.remove('userData');
 
       _initializeServices();
+      _studentService.clear();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to logout properly');
     }
   }
 
-  Future<void> fetchStudents() async {
-    if (_token == null) throw Exception('Not authenticated');
-    try {
-      _students = await _studentService.getStudents();
-      notifyListeners();
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await logout();
-      }
-      rethrow;
-    }
-  }
-
+  // Task-related methods
   Future<void> fetchTasks() async {
     if (_token == null) throw Exception('Not authenticated');
     try {
@@ -193,77 +180,6 @@ class AuthProvider with ChangeNotifier {
         await logout();
       }
       throw Exception('Failed to fetch tasks: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> registerStudent({
-    required String name,
-    required String email,
-  }) async {
-    if (_token == null) throw Exception('Not authenticated');
-    try {
-      final response = await _studentService.registerStudent(
-        name: name,
-        email: email,
-      );
-      // Refresh students list after adding new student
-      await fetchStudents();
-      return response;
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await logout();
-      }
-      throw Exception('Failed to register student: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> getStudentDetails(
-    String registrationNumber,
-  ) async {
-    if (_token == null) throw Exception('Not authenticated');
-    try {
-      return await _studentService.getStudent(registrationNumber);
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await logout();
-      }
-      throw Exception('Failed to fetch student details: $e');
-    }
-  }
-
-  Future<void> deleteStudent(String registrationNumber) async {
-    if (_token == null) throw Exception('Not authenticated');
-    try {
-      await _studentService.deleteStudent(registrationNumber);
-      // Refresh students list after deletion
-      await fetchStudents();
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await logout();
-      }
-      throw Exception('Failed to delete student: $e');
-    }
-  }
-
-  Future<void> updateStudent(
-    String registrationNumber, {
-    required String name,
-    required String email,
-  }) async {
-    if (_token == null) throw Exception('Not authenticated');
-    try {
-      await _studentService.updateStudent(
-        registrationNumber,
-        name: name,
-        email: email,
-      );
-      // Refresh students list after update
-      await fetchStudents();
-    } catch (e) {
-      if (e.toString().contains('Session expired')) {
-        await logout();
-      }
-      throw Exception('Failed to update student: $e');
     }
   }
 }

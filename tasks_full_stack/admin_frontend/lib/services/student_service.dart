@@ -1,33 +1,54 @@
 import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 
-class StudentService {
+class StudentService extends ChangeNotifier {
   final ApiService _api;
+  List<Map<String, dynamic>>? _students;
+  bool _isLoading = false;
 
   StudentService(String? token) : _api = ApiService(token: token);
 
-  Future<List<Map<String, dynamic>>> getStudents() async {
+  List<Map<String, dynamic>>? get students => _students;
+  bool get isLoading => _isLoading;
+
+  Future<void> fetchStudents() async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
       final response = await _api.get('/admin/students');
       if (response['students'] != null) {
-        return List<Map<String, dynamic>>.from(response['students']);
+        _students = List<Map<String, dynamic>>.from(response['students']);
+      } else {
+        throw Exception('No students data in response');
       }
-      throw Exception('No students data in response');
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching students: $e');
       }
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
+      }
       rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
   Future<Map<String, dynamic>> getStudent(String registrationNumber) async {
     try {
       final response = await _api.get('/admin/students/$registrationNumber');
+      if (response['student'] == null) {
+        throw Exception('Student not found');
+      }
       return response['student'];
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching student: $e');
+      }
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
       }
       rethrow;
     }
@@ -42,10 +63,14 @@ class StudentService {
         'name': name,
         'email': email,
       });
+      await fetchStudents(); // Refresh the students list
       return response;
     } catch (e) {
       if (kDebugMode) {
         print('Error registering student: $e');
+      }
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
       }
       rethrow;
     }
@@ -53,22 +78,22 @@ class StudentService {
 
   Future<Map<String, dynamic>> updateStudent(
     String registrationNumber, {
-    String? name,
-    String? email,
+    required String name,
+    required String email,
   }) async {
     try {
-      final data = <String, dynamic>{};
-      if (name != null) data['name'] = name;
-      if (email != null) data['email'] = email;
-
-      final response = await _api.put(
-        '/admin/students/$registrationNumber',
-        data,
-      );
+      final response = await _api.put('/admin/students/$registrationNumber', {
+        'name': name,
+        'email': email,
+      });
+      await fetchStudents(); // Refresh the students list
       return response;
     } catch (e) {
       if (kDebugMode) {
         print('Error updating student: $e');
+      }
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
       }
       rethrow;
     }
@@ -77,11 +102,20 @@ class StudentService {
   Future<void> deleteStudent(String registrationNumber) async {
     try {
       await _api.delete('/admin/students/$registrationNumber');
+      await fetchStudents(); // Refresh the students list
     } catch (e) {
       if (kDebugMode) {
         print('Error deleting student: $e');
       }
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
+      }
       rethrow;
     }
+  }
+
+  void clear() {
+    _students = null;
+    notifyListeners();
   }
 }

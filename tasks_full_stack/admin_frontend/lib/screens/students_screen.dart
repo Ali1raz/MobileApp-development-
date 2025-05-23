@@ -28,9 +28,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
       _errorMessage = null;
     });
 
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final studentService =
+        Provider.of<AuthProvider>(context, listen: false).studentService;
     try {
-      await auth.fetchStudents();
+      await studentService.fetchStudents();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -123,7 +124,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    final studentService = Provider.of<AuthProvider>(context).studentService;
 
     return Scaffold(
       body:
@@ -131,7 +132,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ? const Center(child: CircularProgressIndicator())
               : _errorMessage != null
               ? _buildErrorWidget()
-              : _buildStudentList(auth.students!),
+              : _buildStudentList(studentService.students!),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/add-student');

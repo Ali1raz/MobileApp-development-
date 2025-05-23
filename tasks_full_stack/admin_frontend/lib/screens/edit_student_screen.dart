@@ -46,8 +46,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     });
 
     try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      await auth.updateStudent(
+      final studentService =
+          Provider.of<AuthProvider>(context, listen: false).studentService;
+      await studentService.updateStudent(
         widget.registrationNumber,
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),

@@ -32,10 +32,9 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     });
 
     try {
-      final response = await Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      ).registerStudent(
+      final studentService =
+          Provider.of<AuthProvider>(context, listen: false).studentService;
+      final response = await studentService.registerStudent(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
       );

@@ -32,8 +32,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
     });
 
     try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      _studentData = await auth.getStudentDetails(widget.registrationNumber);
+      final studentService =
+          Provider.of<AuthProvider>(context, listen: false).studentService;
+      _studentData = await studentService.getStudent(widget.registrationNumber);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -74,8 +75,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
 
     if (confirmed == true && mounted) {
       try {
-        final auth = Provider.of<AuthProvider>(context, listen: false);
-        await auth.deleteStudent(widget.registrationNumber);
+        final studentService =
+            Provider.of<AuthProvider>(context, listen: false).studentService;
+        await studentService.deleteStudent(widget.registrationNumber);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Student deleted successfully')),
