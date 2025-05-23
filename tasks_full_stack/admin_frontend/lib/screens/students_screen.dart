@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'student_details_screen.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -104,7 +105,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             onTap: () {
-              // TODO: Navigate to student details
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => StudentDetailsScreen(
+                        registrationNumber: student['registration_number'],
+                      ),
+                ),
+              );
             },
           ),
         );
