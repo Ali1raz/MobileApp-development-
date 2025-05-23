@@ -27,6 +27,7 @@ class AuthProvider with ChangeNotifier {
   List<Map<String, dynamic>>? get tasks => _tasks;
   bool get isLoading => _isLoading;
   StudentService get studentService => _studentService;
+  List<Map<String, dynamic>>? get students => _studentService.students;
 
   AuthProvider() {
     _initializeServices();
@@ -173,13 +174,38 @@ class AuthProvider with ChangeNotifier {
   Future<void> fetchTasks() async {
     if (_token == null) throw Exception('Not authenticated');
     try {
-      _tasks = await _taskService.getTasks();
+      await _taskService.fetchTasks();
+      _tasks = _taskService.tasks;
       notifyListeners();
     } catch (e) {
       if (e.toString().contains('Session expired')) {
         await logout();
       }
       throw Exception('Failed to fetch tasks: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> createTask({
+    required String title,
+    required String description,
+    required String dueDate,
+    required List<String> registrationNumbers,
+  }) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      final response = await _taskService.createTask(
+        title: title,
+        description: description,
+        dueDate: dueDate,
+        registrationNumbers: registrationNumbers,
+      );
+      await fetchTasks();
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to create task: $e');
     }
   }
 }

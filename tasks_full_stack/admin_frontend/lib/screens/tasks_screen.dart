@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/create_task_dialog.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -61,10 +62,16 @@ class _TasksScreenState extends State<TasksScreen> {
                               child: ExpansionTile(
                                 leading: CircleAvatar(
                                   backgroundColor: _getStatusColor(
-                                    task['status'] ?? 'pending',
+                                    task['is_completed'] == 1
+                                        ? 'completed'
+                                        : 'pending',
                                   ),
                                   child: Icon(
-                                    _getStatusIcon(task['status'] ?? 'pending'),
+                                    _getStatusIcon(
+                                      task['is_completed'] == 1
+                                          ? 'completed'
+                                          : 'pending',
+                                    ),
                                     color: Colors.white,
                                   ),
                                 ),
@@ -103,24 +110,29 @@ class _TasksScreenState extends State<TasksScreen> {
                                               ).textTheme.titleMedium,
                                         ),
                                         const SizedBox(height: 8),
-                                        if (task['assigned_students'] != null &&
-                                            task['assigned_students']
-                                                .isNotEmpty)
-                                          ...task['assigned_students']
-                                              .map<Widget>(
-                                                (student) => ListTile(
-                                                  dense: true,
-                                                  leading: const Icon(
-                                                    Icons.person,
-                                                  ),
-                                                  title: Text(
-                                                    student['name'] ?? '',
-                                                  ),
-                                                  subtitle: Text(
-                                                    student['email'] ?? '',
-                                                  ),
-                                                ),
-                                              )
+                                        if (task['students'] != null &&
+                                            task['students'].isNotEmpty)
+                                          ...task['students'].map<Widget>(
+                                            (student) => ListTile(
+                                              dense: true,
+                                              leading: const Icon(Icons.person),
+                                              title: Text(
+                                                student['name'] ?? '',
+                                              ),
+                                              subtitle: Text(
+                                                student['registration_number'] ??
+                                                    '',
+                                              ),
+                                              trailing:
+                                                  student['pivot']?['is_completed'] ==
+                                                          1
+                                                      ? const Icon(
+                                                        Icons.check_circle,
+                                                        color: Colors.green,
+                                                      )
+                                                      : null,
+                                            ),
+                                          )
                                         else
                                           const Text('No students assigned'),
                                       ],
@@ -134,8 +146,23 @@ class _TasksScreenState extends State<TasksScreen> {
                         : const Center(child: Text('No tasks found')),
               ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Show add task dialog
+        onPressed: () async {
+          final auth = Provider.of<AuthProvider>(context, listen: false);
+          try {
+            await auth.studentService.fetchStudents();
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => const CreateTaskDialog(),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error loading students: $e')),
+              );
+            }
+          }
         },
         child: const Icon(Icons.add),
       ),
