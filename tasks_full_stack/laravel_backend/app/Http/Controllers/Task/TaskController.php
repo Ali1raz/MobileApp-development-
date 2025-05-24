@@ -136,4 +136,106 @@ class TaskController extends Controller
             ], 500);
         }
     }
+
+    public function deleteTask($taskId)
+    {
+        try {
+            $task = Task::findOrFail($taskId);
+
+            // Delete the task (this will automatically delete related records in student_task table due to foreign key constraints)
+            $task->delete();
+
+            return response()->json([
+                'message' => 'Task deleted successfully'
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Task not found',
+                'error' => 'TASK_NOT_FOUND'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while deleting the task',
+                'error' => 'INTERNAL_SERVER_ERROR'
+            ], 500);
+        }
+    }
+
+    public function updateTask(Request $request, $taskId)
+    {
+        try {
+            $request->validate([
+                'title' => 'sometimes|string',
+                'description' => 'nullable|string',
+                'due_date' => 'nullable|date',
+                'registration_numbers' => 'sometimes|array',
+                'registration_numbers.*' => 'exists:users,registration_number'
+            ]);
+
+            $task = Task::findOrFail($taskId);
+
+            // Update task details if provided
+            if ($request->has('title')) {
+                $task->title = $request->title;
+            }
+            if ($request->has('description')) {
+                $task->description = $request->description;
+            }
+            if ($request->has('due_date')) {
+                $task->due_date = $request->due_date;
+            }
+            $task->save();
+
+            // Update student assignments if provided
+            if ($request->has('registration_numbers')) {
+                // Get current assignments
+                $currentAssignments = DB::table('student_task')
+                    ->where('task_id', $taskId)
+                    ->pluck('registration_number')
+                    ->toArray();
+
+                // Get new assignments
+                $newAssignments = $request->registration_numbers;
+
+                // Find assignments to remove (in current but not in new)
+                $toRemove = array_diff($currentAssignments, $newAssignments);
+                if (!empty($toRemove)) {
+                    DB::table('student_task')
+                        ->where('task_id', $taskId)
+                        ->whereIn('registration_number', $toRemove)
+                        ->delete();
+                }
+
+                // Find assignments to add (in new but not in current)
+                $toAdd = array_diff($newAssignments, $currentAssignments);
+                foreach ($toAdd as $reg) {
+                    DB::table('student_task')->insert([
+                        'task_id' => $taskId,
+                        'registration_number' => $reg,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
+            // Load the updated task with its students
+            $updatedTask = Task::with(['students:id,name,registration_number'])
+                ->find($taskId);
+
+            return response()->json([
+                'message' => 'Task updated successfully',
+                'task' => $updatedTask
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Task not found',
+                'error' => 'TASK_NOT_FOUND'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the task',
+                'error' => 'INTERNAL_SERVER_ERROR'
+            ], 500);
+        }
+    }
 }

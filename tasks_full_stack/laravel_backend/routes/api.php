@@ -40,6 +40,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'createTask']);
     Route::post('/tasks/{taskId}/progress', [TaskController::class, 'taskProgress']);
+    Route::delete('/tasks/{taskId}', [TaskController::class, 'deleteTask']);
+    Route::put('/tasks/{taskId}', [TaskController::class, 'updateTask']);
 });
 
 Route::post('/student/login', [StudentController::class, 'store']);
