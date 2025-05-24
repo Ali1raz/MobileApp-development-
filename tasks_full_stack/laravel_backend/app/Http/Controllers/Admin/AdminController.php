@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -17,6 +18,40 @@ class AdminController extends Controller
             $stats = [
                 'total_students' => User::where('role', User::ROLE_STUDENT)->count(),
                 'total_tasks' => Task::count(),
+                'task_completion' => [
+                    'total_completed' => DB::table('student_task')->where('is_completed', true)->count(),
+                    'total_pending' => DB::table('student_task')->where('is_completed', false)->count(),
+                    'completion_rate' => DB::table('student_task')->count() > 0
+                        ? round((DB::table('student_task')->where('is_completed', true)->count() / DB::table('student_task')->count()) * 100, 2)
+                        : 0
+                ],
+                'recent_activities' => [
+                    'recent_tasks' => Task::with(['students:id,name,registration_number'])
+                        ->latest()
+                        ->take(5)
+                        ->get(),
+                    'recent_completions' => DB::table('student_task')
+                        ->join('users', 'student_task.registration_number', '=', 'users.registration_number')
+                        ->join('tasks', 'student_task.task_id', '=', 'tasks.id')
+                        ->where('is_completed', true)
+                        ->select('users.name as student_name', 'tasks.title as task_title', 'student_task.updated_at as completed_at')
+                        ->latest('completed_at')
+                        ->take(5)
+                        ->get()
+                ],
+                'student_performance' => DB::table('student_task')
+                    ->join('users', 'student_task.registration_number', '=', 'users.registration_number')
+                    ->select(
+                        'users.name',
+                        'users.registration_number',
+                        DB::raw('COUNT(*) as total_tasks'),
+                        DB::raw('SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) as completed_tasks'),
+                        DB::raw('ROUND((SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as completion_rate')
+                    )
+                    ->groupBy('users.registration_number', 'users.name')
+                    ->orderBy('completion_rate', 'desc')
+                    ->take(5)
+                    ->get()
             ];
 
             return response()->json([
@@ -131,7 +166,10 @@ class AdminController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $student = User::where('registration_number', $registration_number)->where('role', User::ROLE_STUDENT)->first();
+        $student = User::where('registration_number', $registration_number)
+            ->where('role', User::ROLE_STUDENT)
+            ->with('tasks') // Eager load tasks
+            ->first();
 
         if (!$student) {
             return response()->json([
@@ -139,9 +177,20 @@ class AdminController extends Controller
             ]);
         }
 
+        // Check and delete tasks assigned only to this student
+        foreach ($student->tasks as $task) {
+            // Check how many students are assigned to this task
+            if ($task->students()->count() === 1) {
+                // If only this student is assigned, delete the task
+                $task->delete();
+            }
+        }
+
+        // Delete the student
         $student->delete();
+
         return response()->json([
-            'message' => 'Student delted successfully',
+            'message' => 'Student deleted successfully',
         ]);
     }
 }

@@ -44,6 +44,21 @@ If OK **Response body**:
 }
 ```
 
+### Admin Logout
+
+-   **URL**: `/api/admin/logout`
+-   **Method**: `POST`
+-   **Description**: Logout an admin user
+-   **Headers Required**:
+    -   `Authorization: Bearer {token}`
+-   **Response**:
+
+```json
+{
+    "message": "Successfully logged out"
+}
+```
+
 ### Student Login
 
 -   **URL**: `/api/student/login`
@@ -77,6 +92,21 @@ If OK **Response body**:
 }
 ```
 
+### Student Logout
+
+-   **URL**: `/api/student/logout`
+-   **Method**: `POST`
+-   **Description**: Logout a student user
+-   **Headers Required**:
+    -   `Authorization: Bearer {token}`
+-   **Response**:
+
+```json
+{
+    "message": "Successfully logged out"
+}
+```
+
 ## Admin Endpoints
 
 All admin endpoints require `Authorization: Bearer {token}` header
@@ -87,6 +117,66 @@ All admin endpoints require `Authorization: Bearer {token}` header
 -   **Method**: `GET`
 -   **Description**: Get admin dashboard statistics
 -   **Response**: Returns dashboard statistics
+
+### Admin Dashboard Statistics
+
+**Endpoint:** `GET /api/admin/dashboard`  
+**Authentication:** Required (Admin)  
+**Description:** Get comprehensive dashboard statistics including student performance, task completion rates, and recent activities.  
+**Response:**
+
+```json
+{
+    "success": true,
+    "stats": {
+        "total_students": 10,
+        "total_tasks": 20,
+        "task_completion": {
+            "total_completed": 15,
+            "total_pending": 5,
+            "completion_rate": 75.0
+        },
+        "recent_activities": {
+            "recent_tasks": [
+                {
+                    "id": 1,
+                    "title": "Task Title",
+                    "students": [
+                        {
+                            "id": 1,
+                            "name": "John Doe",
+                            "registration_number": "REG123"
+                        }
+                    ]
+                }
+            ],
+            "recent_completions": [
+                {
+                    "student_name": "John Doe",
+                    "task_title": "Task Title",
+                    "completed_at": "2024-03-20 10:00:00"
+                }
+            ]
+        },
+        "student_performance": [
+            {
+                "name": "John Doe",
+                "registration_number": "REG123",
+                "total_tasks": 10,
+                "completed_tasks": 8,
+                "completion_rate": 80.0
+            }
+        ]
+    }
+}
+```
+
+**Statistics Included:**
+
+-   Total number of students and tasks
+-   Task completion metrics (completed, pending, completion rate)
+-   Recent activities (latest tasks and completions)
+-   Top 5 performing students with their completion rates
 
 ### Student Management
 
@@ -361,6 +451,108 @@ All admin endpoints require `Authorization: Bearer {token}` header
             "is_completed": 1
         }
     ]
+}
+```
+
+#### Delete Task
+
+-   **URL**: `/api/admin/tasks/{taskId}`
+-   **Method**: `DELETE`
+-   **Description**: Delete a task and its assignments
+-   **URL Parameters**:
+    -   `taskId`: The ID of the task to delete
+
+**Success Response (200 OK):**
+
+```json
+{
+    "message": "Task deleted successfully"
+}
+```
+
+#### Update Task
+
+-   **URL**: `/api/admin/tasks/{taskId}`
+-   **Method**: `PUT`
+-   **Description**: Update task details and manage student assignments
+-   **URL Parameters**:
+    -   `taskId`: The ID of the task to update
+-   **Request Body**:
+
+```json
+{
+    "title": "Updated Task Title",
+    "description": "Updated task description",
+    "due_date": "2025-06-30",
+    "registration_numbers": ["STUQ8S1XO", "STUVQRX7Q", "STUQTIMFQ"]
+}
+```
+
+-   **Note**: All fields are optional. Only provided fields will be updated.
+
+**Success Response (200 OK):**
+
+```json
+{
+    "message": "Task updated successfully",
+    "task": {
+        "id": 1,
+        "title": "Updated Task Title",
+        "description": "Updated task description",
+        "due_date": "2025-06-30",
+        "created_at": "2025-05-18T12:17:17.000000Z",
+        "updated_at": "2025-05-21T03:35:32.000000Z",
+        "students": [
+            {
+                "id": 5,
+                "name": "raza",
+                "registration_number": "STUQ8S1XO"
+            },
+            {
+                "id": 7,
+                "name": "naveed",
+                "registration_number": "STUVQRX7Q"
+            },
+            {
+                "id": 8,
+                "name": "Waseem",
+                "registration_number": "STUQTIMFQ"
+            }
+        ]
+    }
+}
+```
+
+**Error Responses:**
+
+1. Task Not Found (404):
+
+```json
+{
+    "message": "Task not found",
+    "error": "TASK_NOT_FOUND"
+}
+```
+
+2. Invalid Registration Number (422):
+
+```json
+{
+    "message": "The selected registration numbers.0 is invalid.",
+    "errors": {
+        "registration_numbers.0": [
+            "The selected registration numbers.0 is invalid."
+        ]
+    }
+}
+```
+
+3. Server Error (500):
+
+```json
+{
+    "message": "An error occurred while updating the task",
+    "error": "INTERNAL_SERVER_ERROR"
 }
 ```
 
