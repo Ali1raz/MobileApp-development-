@@ -23,9 +23,8 @@ class StudentService extends ChangeNotifier {
         throw Exception('No students data in response');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching students: $e');
-      }
+      
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -44,9 +43,6 @@ class StudentService extends ChangeNotifier {
       }
       return response['student'];
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching student: $e');
-      }
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -66,9 +62,6 @@ class StudentService extends ChangeNotifier {
       await fetchStudents(); // Refresh the students list
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error registering student: $e');
-      }
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -89,9 +82,8 @@ class StudentService extends ChangeNotifier {
       await fetchStudents(); // Refresh the students list
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error updating student: $e');
-      }
+      
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -104,9 +96,8 @@ class StudentService extends ChangeNotifier {
       await _api.delete('/admin/students/$registrationNumber');
       await fetchStudents(); // Refresh the students list
     } catch (e) {
-      if (kDebugMode) {
-        print('Error deleting student: $e');
-      }
+      
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }

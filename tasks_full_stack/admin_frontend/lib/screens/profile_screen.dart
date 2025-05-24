@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/update_profile_dialog.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -8,163 +9,169 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    final userData = auth.userData;
+    final user = auth.userData;
 
-    if (userData == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (user == null) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Theme.of(context).primaryColor,
-                      Theme.of(context).primaryColor.withAlpha(180),
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Text(
-                    userData['name'] ?? 'N/A',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    userData['email'] ?? 'N/A',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildInfoSection(
-                    title: 'Role',
-                    value: userData['role']?.toString().toUpperCase() ?? 'N/A',
-                    icon: Icons.work_outline,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildInfoSection(
-                    title: 'Member Since',
-                    value: _formatDate(userData['created_at']),
-                    icon: Icons.calendar_today_outlined,
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _showLogoutConfirmation(context),
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Logout'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+      appBar: AppBar(
+        title: const Text('Profile'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) async {
+              switch (value) {
+                case 'name':
+                  final result = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => UpdateProfileDialog(
+                          type: 'name',
+                          currentValue: user['name'],
                         ),
-                        elevation: 2,
+                  );
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Name updated successfully'),
+                        backgroundColor: Colors.green,
                       ),
+                    );
+                  }
+                  break;
+                case 'email':
+                  final result = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => UpdateProfileDialog(
+                          type: 'email',
+                          currentValue: user['email'],
+                        ),
+                  );
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Email updated successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                  break;
+                case 'password':
+                  final result = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => UpdateProfileDialog(
+                          type: 'password',
+                          currentValue: '',
+                        ),
+                  );
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password updated successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                  break;
+              }
+            },
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'name',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_outline),
+                        SizedBox(width: 8),
+                        Text('Update Name'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'email',
+                    child: Row(
+                      children: [
+                        Icon(Icons.email_outlined),
+                        SizedBox(width: 8),
+                        Text('Update Email'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'password',
+                    child: Row(
+                      children: [
+                        Icon(Icons.lock_outline),
+                        SizedBox(width: 8),
+                        Text('Update Password'),
+                      ],
                     ),
                   ),
                 ],
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Personal Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInfoRow(
+                      context,
+                      Icons.person_outline,
+                      'Name',
+                      user['name'],
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(
+                      context,
+                      Icons.email_outlined,
+                      'Email',
+                      user['email'],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _showLogoutConfirmation(context),
+                        icon: const Icon(Icons.logout),
+                        label: const Text('Logout'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  Widget _buildInfoSection({
-    required String title,
-    required String value,
-    required IconData icon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.deepPurple.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 24, color: Colors.deepPurple),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(String? dateStr) {
-    if (dateStr == null) return 'N/A';
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return 'N/A';
-    }
   }
 
   Future<void> _showLogoutConfirmation(BuildContext context) async {
@@ -181,6 +188,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
                 child: const Text('Logout'),
               ),
             ],
@@ -189,6 +197,26 @@ class ProfileScreen extends StatelessWidget {
 
     if (confirmed == true && context.mounted) {
       await Provider.of<AuthProvider>(context, listen: false).logout();
+      if (context.mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
     }
+  }
+
+  Widget _buildInfoRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 8),
+        Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(value)),
+      ],
+    );
   }
 }

@@ -5,8 +5,10 @@ import '../services/api_service.dart';
 import '../services/student_service.dart';
 import '../services/task_service.dart';
 import '../services/user_service.dart';
+import 'package:http/http.dart' as http;
 
 class AuthProvider with ChangeNotifier {
+  static const String _baseUrl = 'http://192.168.213.66:8000/api';
   String? _token;
   Map<String, dynamic>? _userData;
   Map<String, dynamic>? _dashboardData;
@@ -135,19 +137,44 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateProfile(String name, String email) async {
-    if (_token == null) throw Exception('Not authenticated');
+  Future<void> updateProfile(
+    String name,
+    String email,
+    String? password,
+  ) async {
+    if (_token == null) {
+      throw Exception('Not authenticated');
+    }
 
     try {
-      _userData = await _userService.updateProfile(name, email);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userData', json.encode(_userData));
-      notifyListeners();
+      final response = await http.put(
+        Uri.parse('$_baseUrl/admin/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_token',
+        },
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          if (password != null) 'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _userData = data['user'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userData', json.encode(_userData));
+        notifyListeners();
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Failed to update profile');
+      }
     } catch (e) {
-      if (e.toString().contains('Session expired')) {
+      if (e.toString().contains('Unauthenticated')) {
         await logout();
       }
-      throw Exception('Failed to update profile: $e');
+      rethrow;
     }
   }
 

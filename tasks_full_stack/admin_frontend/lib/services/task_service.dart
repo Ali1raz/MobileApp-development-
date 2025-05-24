@@ -23,9 +23,7 @@ class TaskService extends ChangeNotifier {
         throw Exception('No tasks data in response');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching tasks: $e');
-      }
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -52,9 +50,7 @@ class TaskService extends ChangeNotifier {
       await fetchTasks(); // Refresh the tasks list
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error creating task: $e');
-      }
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -67,9 +63,7 @@ class TaskService extends ChangeNotifier {
       final response = await _api.post('/admin/tasks/$taskId/progress', {});
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching task progress: $e');
-      }
+      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }

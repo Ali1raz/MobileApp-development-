@@ -19,9 +19,7 @@ class UserService {
 
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error during login: $e');
-      }
+      
       rethrow;
     }
   }
@@ -31,9 +29,7 @@ class UserService {
       final response = await _api.get('/admin/profile');
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching user data: $e');
-      }
+      
       rethrow;
     }
   }
@@ -43,9 +39,7 @@ class UserService {
       final response = await _api.get('/admin/dashboard');
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching dashboard data: $e');
-      }
+      
       rethrow;
     }
   }
@@ -58,9 +52,7 @@ class UserService {
       });
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error updating profile: $e');
-      }
+      
       rethrow;
     }
   }
