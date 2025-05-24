@@ -197,44 +197,6 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => EditStudentScreen(
-                              registrationNumber: widget.registrationNumber,
-                              studentData: _studentData!,
-                            ),
-                      ),
-                    );
-                    if (result == true && mounted) {
-                      _fetchStudentDetails();
-                    }
-                  },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _showDeleteConfirmation,
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Delete'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 24),
           Text('Assigned Tasks', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
@@ -342,7 +304,58 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Student Details')),
+      appBar: AppBar(
+        title: const Text('Student Details'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'edit') {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => EditStudentScreen(
+                          registrationNumber: widget.registrationNumber,
+                          studentData: _studentData!,
+                        ),
+                  ),
+                );
+                if (result == true && mounted) {
+                  _fetchStudentDetails();
+                }
+              } else if (value == 'delete') {
+                _showDeleteConfirmation();
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 20),
+                        SizedBox(width: 8),
+                        Text('Edit Student'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, size: 20, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text(
+                          'Delete Student',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+          ),
+        ],
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
