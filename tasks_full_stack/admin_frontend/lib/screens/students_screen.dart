@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'student_details_screen.dart';
+import 'add_student_screen.dart';
 
 class StudentsScreen extends StatefulWidget {
   const StudentsScreen({super.key});
@@ -86,39 +87,44 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   Widget _buildStudentList(List<Map<String, dynamic>> students) {
-    return ListView.builder(
-      itemCount: students.length,
-      itemBuilder: (context, index) {
-        final student = students[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              child: Text(
-                (student['name'] ?? '?')[0].toUpperCase(),
+    return RefreshIndicator(
+      onRefresh: _fetchStudents,
+      child: ListView.builder(
+        itemCount: students.length,
+        itemBuilder: (context, index) {
+          final student = students[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Text(
+                  (student['name'] ?? '?')[0].toUpperCase(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              title: Text(student['name'] ?? 'No Name'),
+              subtitle: Text(student['email'] ?? 'No Email'),
+              trailing: Text(
+                student['registration_number'] ?? 'No ID',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => StudentDetailsScreen(
+                          registrationNumber: student['registration_number'],
+                        ),
+                  ),
+                );
+                // Refresh data when returning from student details
+                _fetchStudents();
+              },
             ),
-            title: Text(student['name'] ?? 'No Name'),
-            subtitle: Text(student['email'] ?? 'No Email'),
-            trailing: Text(
-              student['registration_number'] ?? 'No ID',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => StudentDetailsScreen(
-                        registrationNumber: student['registration_number'],
-                      ),
-                ),
-              );
-            },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -134,8 +140,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ? _buildErrorWidget()
               : _buildStudentList(studentService.students!),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/add-student');
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddStudentScreen()),
+          );
+          // Refresh data when returning from add student
+          _fetchStudents();
         },
         child: const Icon(Icons.add),
       ),
