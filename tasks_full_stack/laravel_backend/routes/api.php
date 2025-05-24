@@ -22,7 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/admin/login', [AuthenticatedSessionController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-    // all routes for admin only
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
     Route::post('register-student', [AdminController::class, 'registerStudent']);
@@ -44,6 +45,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 Route::post('/student/login', [StudentController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(function () {
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::get('/dashboard', [StudentController::class, 'dashboard']);
 
     Route::get('/profile', [UserController::class, 'profile']);
@@ -53,3 +55,7 @@ Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(fu
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
 });
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth:sanctum')
+    ->name('logout');

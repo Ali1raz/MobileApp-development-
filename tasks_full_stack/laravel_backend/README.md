@@ -44,6 +44,21 @@ If OK **Response body**:
 }
 ```
 
+### Admin Logout
+
+-   **URL**: `/api/admin/logout`
+-   **Method**: `POST`
+-   **Description**: Logout an admin user
+-   **Headers Required**:
+    -   `Authorization: Bearer {token}`
+-   **Response**:
+
+```json
+{
+    "message": "Successfully logged out"
+}
+```
+
 ### Student Login
 
 -   **URL**: `/api/student/login`
@@ -74,6 +89,21 @@ If OK **Response body**:
         "registration_number": "STUQTIMFQ"
     },
     "token": "8|73rONWtOTGvnl1NWCCMNJnmn7p0QdI2y2Y7cTBJG1573593b"
+}
+```
+
+### Student Logout
+
+-   **URL**: `/api/student/logout`
+-   **Method**: `POST`
+-   **Description**: Logout a student user
+-   **Headers Required**:
+    -   `Authorization: Bearer {token}`
+-   **Response**:
+
+```json
+{
+    "message": "Successfully logged out"
 }
 ```
 
