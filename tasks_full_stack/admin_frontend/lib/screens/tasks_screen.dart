@@ -266,10 +266,13 @@ class _TasksScreenState extends State<TasksScreen> {
           try {
             await auth.studentService.fetchStudents();
             if (mounted) {
-              showDialog(
+              final result = await showDialog(
                 context: context,
                 builder: (context) => const CreateTaskDialog(),
               );
+              if (result == true && mounted) {
+                await auth.fetchDashboardData();
+              }
             }
           } catch (e) {
             if (mounted) {

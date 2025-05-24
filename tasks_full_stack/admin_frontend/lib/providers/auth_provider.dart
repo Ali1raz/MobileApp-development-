@@ -200,12 +200,33 @@ class AuthProvider with ChangeNotifier {
         registrationNumbers: registrationNumbers,
       );
       await fetchTasks();
+      await fetchDashboardData();
       return response;
     } catch (e) {
       if (e.toString().contains('Session expired')) {
         await logout();
       }
       throw Exception('Failed to create task: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> registerStudent({
+    required String name,
+    required String email,
+  }) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      final response = await _studentService.registerStudent(
+        name: name,
+        email: email,
+      );
+      await fetchDashboardData();
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to register student: $e');
     }
   }
 }

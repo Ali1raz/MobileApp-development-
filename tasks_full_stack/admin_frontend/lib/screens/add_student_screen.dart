@@ -32,9 +32,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     });
 
     try {
-      final studentService =
-          Provider.of<AuthProvider>(context, listen: false).studentService;
-      final response = await studentService.registerStudent(
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final response = await auth.registerStudent(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
       );
@@ -43,7 +42,7 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Student registered successfully!\nRegistration Number: ${response['registration_number']}\nPassword: ${response['password']}',
+              'Student registered successfully!\nRegistration Number: ${response['registration_number']}',
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 5),
