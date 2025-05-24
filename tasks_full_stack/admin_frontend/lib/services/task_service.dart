@@ -23,7 +23,6 @@ class TaskService extends ChangeNotifier {
         throw Exception('No tasks data in response');
       }
     } catch (e) {
-      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -50,7 +49,32 @@ class TaskService extends ChangeNotifier {
       await fetchTasks(); // Refresh the tasks list
       return response;
     } catch (e) {
-      
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
+      }
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateTask({
+    required int taskId,
+    String? title,
+    String? description,
+    String? dueDate,
+    List<String>? registrationNumbers,
+  }) async {
+    try {
+      final Map<String, dynamic> data = {};
+      if (title != null) data['title'] = title;
+      if (description != null) data['description'] = description;
+      if (dueDate != null) data['due_date'] = dueDate;
+      if (registrationNumbers != null) {
+        data['registration_numbers'] = registrationNumbers;
+      }
+      final response = await _api.put('/admin/tasks/$taskId', data);
+      await fetchTasks(); // Refresh the tasks list
+      return response;
+    } catch (e) {
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -63,7 +87,18 @@ class TaskService extends ChangeNotifier {
       final response = await _api.post('/admin/tasks/$taskId/progress', {});
       return response;
     } catch (e) {
-      
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTask(int taskId) async {
+    try {
+      await _api.delete('/admin/tasks/$taskId');
+      await fetchTasks(); // Refresh the tasks list
+    } catch (e) {
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }

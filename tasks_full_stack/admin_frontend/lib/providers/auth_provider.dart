@@ -237,6 +237,59 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> updateTask({
+    required int taskId,
+    String? title,
+    String? description,
+    String? dueDate,
+    List<String>? registrationNumbers,
+  }) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      final response = await _taskService.updateTask(
+        taskId: taskId,
+        title: title,
+        description: description,
+        dueDate: dueDate,
+        registrationNumbers: registrationNumbers,
+      );
+      await fetchTasks();
+      await fetchDashboardData();
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to update task: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getTaskProgress(int taskId) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      return await _taskService.getTaskProgress(taskId);
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to get task progress: $e');
+    }
+  }
+
+  Future<void> deleteTask(int taskId) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      await _taskService.deleteTask(taskId);
+      await fetchTasks();
+      await fetchDashboardData();
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to delete task: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> registerStudent({
     required String name,
     required String email,
