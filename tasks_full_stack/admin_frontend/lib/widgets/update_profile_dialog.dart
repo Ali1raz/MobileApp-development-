@@ -138,8 +138,12 @@ class UpdateProfileDialog extends StatelessWidget {
                               listen: false,
                             );
                             await auth.updateProfile(
-                              type == 'name' ? controller.text : currentValue,
-                              type == 'email' ? controller.text : currentValue,
+                              type == 'name'
+                                  ? controller.text
+                                  : auth.userData?['name'] ?? '',
+                              type == 'email'
+                                  ? controller.text
+                                  : auth.userData?['email'] ?? '',
                               type == 'password' ? controller.text : null,
                             );
 
