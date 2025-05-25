@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 
 class UserService {
@@ -19,7 +18,6 @@ class UserService {
 
       return response;
     } catch (e) {
-      
       rethrow;
     }
   }
@@ -29,7 +27,6 @@ class UserService {
       final response = await _api.get('/admin/profile');
       return response;
     } catch (e) {
-      
       rethrow;
     }
   }
@@ -39,7 +36,6 @@ class UserService {
       final response = await _api.get('/admin/dashboard');
       return response;
     } catch (e) {
-      
       rethrow;
     }
   }
@@ -52,7 +48,14 @@ class UserService {
       });
       return response;
     } catch (e) {
-      
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await _api.post('/admin/logout', {});
+    } catch (e) {
       rethrow;
     }
   }

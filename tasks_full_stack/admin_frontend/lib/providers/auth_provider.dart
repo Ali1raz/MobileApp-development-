@@ -100,8 +100,14 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('userData', json.encode(_userData));
 
-      await fetchDashboardData();
+      // Initialize services with new token
+      _initializeServices();
+
+      // Fetch initial data
+      await Future.wait([fetchUserData(), fetchDashboardData()]);
     } catch (e) {
+      // If anything fails during login, ensure we're logged out
+      await logout();
       throw Exception(e.toString());
     } finally {
       _isLoading = false;
@@ -185,6 +191,12 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     try {
+      // First try to call the logout API
+      await _userService.logout();
+    } catch (e) {
+      rethrow;
+    } finally {
+      // Always clear local data, even if the API call fails
       _token = null;
       _userData = null;
       _dashboardData = null;
@@ -197,8 +209,6 @@ class AuthProvider with ChangeNotifier {
       _initializeServices();
       _studentService.clear();
       notifyListeners();
-    } catch (e) {
-      throw Exception('Failed to logout properly');
     }
   }
 
