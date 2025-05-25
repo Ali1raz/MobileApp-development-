@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
+import 'screens/profile_screen.dart';
 import 'services/auth_service.dart';
 import 'constants/app_constants.dart';
 
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         AppConstants.loginRoute: (context) => const LoginScreen(),
         AppConstants.homeRoute: (context) => const MyHomePage(),
+        AppConstants.profileRoute: (context) => const ProfileScreen(),
       },
     );
   }
@@ -65,6 +67,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Student Dashboard"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed:
+                () => Navigator.pushNamed(context, AppConstants.profileRoute),
+          ),
           IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
         ],
       ),
