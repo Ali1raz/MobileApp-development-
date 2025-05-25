@@ -54,15 +54,17 @@ class AuthProvider with ChangeNotifier {
         _initializeServices();
 
         try {
-          await fetchUserData();
-          await fetchDashboardData();
+          // Fetch initial data in parallel
+          await Future.wait([fetchUserData(), fetchDashboardData()]);
         } catch (e) {
+          print('Error during initial data fetch: $e');
           await logout();
         }
       } else {
         await logout();
       }
     } catch (e) {
+      print('Error during auth initialization: $e');
       await logout();
     } finally {
       _isInitialized = true;
@@ -127,9 +129,12 @@ class AuthProvider with ChangeNotifier {
     if (_token == null) return;
 
     try {
-      _dashboardData = await _userService.fetchDashboardData();
+      final data = await _userService.fetchDashboardData();
+
+      _dashboardData = data;
       notifyListeners();
     } catch (e) {
+      print('Error fetching dashboard data: $e');
       if (e.toString().contains('Session expired')) {
         await logout();
       }

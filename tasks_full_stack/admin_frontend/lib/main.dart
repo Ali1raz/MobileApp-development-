@@ -112,7 +112,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
       return const LoginScreen();
     }
 
-    final List<Widget> _screens = [
+    final List<Widget> screens = [
       const DashboardScreen(),
       const StudentsScreen(),
       const TasksScreen(),
@@ -150,7 +150,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           ),
         ],
       ),
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (int index) {

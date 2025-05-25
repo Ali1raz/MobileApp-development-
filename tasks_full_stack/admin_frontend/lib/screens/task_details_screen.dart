@@ -14,7 +14,6 @@ class TaskDetailsScreen extends StatefulWidget {
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   bool _isLoading = false;
-  Map<String, dynamic>? _taskProgress;
 
   @override
   void initState() {
@@ -26,7 +25,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     setState(() => _isLoading = true);
     try {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      _taskProgress = await auth.getTaskProgress(widget.task['id']);
+      await auth.getTaskProgress(widget.task['id']);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
