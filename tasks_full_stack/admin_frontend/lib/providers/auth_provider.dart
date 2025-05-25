@@ -308,12 +308,14 @@ class AuthProvider with ChangeNotifier {
   Future<Map<String, dynamic>> registerStudent({
     required String name,
     required String email,
+    required String password,
   }) async {
     if (_token == null) throw Exception('Not authenticated');
     try {
       final response = await _studentService.registerStudent(
         name: name,
         email: email,
+        password: password,
       );
       await fetchDashboardData();
       return response;

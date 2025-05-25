@@ -23,8 +23,6 @@ class StudentService extends ChangeNotifier {
         throw Exception('No students data in response');
       }
     } catch (e) {
-      
-      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -82,8 +80,6 @@ class StudentService extends ChangeNotifier {
       await fetchStudents(); // Refresh the students list
       return response;
     } catch (e) {
-      
-      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
@@ -96,8 +92,6 @@ class StudentService extends ChangeNotifier {
       await _api.delete('/admin/students/$registrationNumber');
       await fetchStudents(); // Refresh the students list
     } catch (e) {
-      
-      
       if (e.toString().contains('Session expired')) {
         throw Exception('Session expired. Please login again.');
       }
