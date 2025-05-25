@@ -198,7 +198,10 @@ class ProfileScreen extends StatelessWidget {
     if (confirmed == true && context.mounted) {
       await Provider.of<AuthProvider>(context, listen: false).logout();
       if (context.mounted) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+          (route) => false, // Remove all previous routes
+        );
       }
     }
   }
