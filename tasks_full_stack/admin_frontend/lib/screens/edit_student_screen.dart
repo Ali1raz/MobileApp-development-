@@ -20,20 +20,24 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showPasswordField = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.studentData['name']);
     _emailController = TextEditingController(text: widget.studentData['email']);
+    _passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -46,13 +50,22 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     });
 
     try {
-      final studentService =
-          Provider.of<AuthProvider>(context, listen: false).studentService;
-      await studentService.updateStudent(
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+
+      // Update student details
+      await auth.studentService.updateStudent(
         widget.registrationNumber,
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
       );
+
+      // If password is provided, update it
+      if (_showPasswordField && _passwordController.text.isNotEmpty) {
+        await auth.changeStudentPassword(
+          widget.registrationNumber,
+          _passwordController.text,
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +94,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Student')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -89,24 +102,16 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             children: [
               if (_errorMessage != null)
                 Container(
-                  padding: const EdgeInsets.all(8.0),
-                  margin: const EdgeInsets.only(bottom: 16.0),
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.red.shade200),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red.shade700),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red.shade700),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red.shade700),
                   ),
                 ),
               Card(
@@ -115,12 +120,14 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Registration Number: ${widget.registrationNumber}',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: Colors.grey[600]),
+                      const Text(
+                        'Student Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const SizedBox(height: 24.0),
+                      const SizedBox(height: 24),
                       TextFormField(
                         controller: _nameController,
                         decoration: const InputDecoration(
@@ -135,7 +142,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -154,6 +161,50 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Change Password',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                          Switch(
+                            value: _showPasswordField,
+                            onChanged: (value) {
+                              setState(() {
+                                _showPasswordField = value;
+                                if (!value) {
+                                  _passwordController.clear();
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      if (_showPasswordField) ...[
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: const InputDecoration(
+                            labelText: 'New Password',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.lock_outline),
+                          ),
+                          obscureText: true,
+                          validator: (value) {
+                            if (_showPasswordField &&
+                                (value == null || value.trim().isEmpty)) {
+                              return 'Please enter a password';
+                            }
+                            if (_showPasswordField && value!.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 ),

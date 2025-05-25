@@ -308,14 +308,12 @@ class AuthProvider with ChangeNotifier {
   Future<Map<String, dynamic>> registerStudent({
     required String name,
     required String email,
-    required String password,
   }) async {
     if (_token == null) throw Exception('Not authenticated');
     try {
       final response = await _studentService.registerStudent(
         name: name,
         email: email,
-        password: password,
       );
       await fetchDashboardData();
       return response;
@@ -324,6 +322,25 @@ class AuthProvider with ChangeNotifier {
         await logout();
       }
       throw Exception('Failed to register student: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> changeStudentPassword(
+    String registrationNumber,
+    String password,
+  ) async {
+    if (_token == null) throw Exception('Not authenticated');
+    try {
+      final response = await _studentService.changeStudentPassword(
+        registrationNumber,
+        password,
+      );
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        await logout();
+      }
+      throw Exception('Failed to change student password: $e');
     }
   }
 }

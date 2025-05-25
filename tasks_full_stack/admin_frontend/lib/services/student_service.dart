@@ -99,6 +99,23 @@ class StudentService extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> changeStudentPassword(
+    String registrationNumber,
+    String password,
+  ) async {
+    try {
+      final response = await _api.put('/admin/students/$registrationNumber', {
+        'password': password,
+      });
+      return response;
+    } catch (e) {
+      if (e.toString().contains('Session expired')) {
+        throw Exception('Session expired. Please login again.');
+      }
+      rethrow;
+    }
+  }
+
   void clear() {
     _students = null;
     notifyListeners();
