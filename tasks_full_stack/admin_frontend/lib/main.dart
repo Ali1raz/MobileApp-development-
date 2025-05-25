@@ -89,6 +89,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
                 child: const Text('Logout'),
               ),
             ],
@@ -97,6 +98,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     if (confirmed == true && context.mounted) {
       await Provider.of<AuthProvider>(context, listen: false).logout();
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     }
   }
 
@@ -143,6 +147,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
                         Icon(Icons.person_outline),
                         SizedBox(width: 8),
                         Text('View Profile'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout),
+                        SizedBox(width: 8),
+                        Text('Logout'),
                       ],
                     ),
                   ),

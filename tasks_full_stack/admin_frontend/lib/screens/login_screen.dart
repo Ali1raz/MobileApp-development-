@@ -1,5 +1,4 @@
 import 'package:admin_frontend/providers/auth_provider.dart';
-import 'package:admin_frontend/screens/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,10 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ).login(_emailController.text.trim(), _passwordController.text.trim());
 
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        );
+        Navigator.pushReplacementNamed(context, '/');
       } catch (e) {
         setState(() {
           _errorMessage = e.toString();
