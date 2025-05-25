@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -71,11 +72,12 @@ class AdminController extends Controller
     {
         $req->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:users,email'
+            'email' => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:6'
         ]);
 
         $regNo = 'STU' . strtoupper(Str::random(6));
-        $password = Str::random(10);
+        $password = $req->exists('password') && !empty($req->password) ? $req->password : Str::random(10);
 
         $user = User::create([
             'name' => $req->name,
@@ -88,8 +90,6 @@ class AdminController extends Controller
         return response()->json([
             'message' => 'Student registered successfully',
             'registration_number' => $regNo,
-            'password' => $password,
-            'student' => $user,
         ]);
     }
 
@@ -142,23 +142,24 @@ class AdminController extends Controller
         $req->validate([
             'name' => 'sometimes|string',
             'email' => 'sometimes|email|unique:users,email,' . $student->id,
-            'password' => 'sometimes|string',
+            'password' => 'sometimes|string|min:6',
         ]);
 
         $student->name = $req->name ?? $student->name;
         $student->email = $req->email ?? $student->email;
 
-        if ($req->filled('password')) {
-            $student->password = Hash::make('password');
+        if ($req->exists('password') && !empty($req->password)) {
+            $student->password = Hash::make($req->password);
         }
 
         $student->save();
 
         return response()->json([
             'message' => 'Student updated successfully',
-            'student' => $student
+            'registration_number' => $student->registration_number,
         ]);
     }
+
 
     public function deleteStudent(Request $req, string $registration_number)
     {
@@ -177,11 +178,8 @@ class AdminController extends Controller
             ]);
         }
 
-        // Check and delete tasks assigned only to this student
         foreach ($student->tasks as $task) {
-            // Check how many students are assigned to this task
             if ($task->students()->count() === 1) {
-                // If only this student is assigned, delete the task
                 $task->delete();
             }
         }

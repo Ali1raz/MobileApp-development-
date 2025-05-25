@@ -285,7 +285,7 @@ All admin endpoints require `Authorization: Bearer {token}` header
 
 -   **URL**: `/api/admin/students/{registration_number}`
 -   **Method**: `PUT`
--   **Description**: Update student information
+-   **Description**: Update student information, name, email (or password)
 -   **Request Body**:
 
 ```json
