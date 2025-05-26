@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -29,7 +30,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             StudentSeeder::class,
-            // Add other seeders here as needed
+            TaskSeeder::class,
         ]);
     }
 }
