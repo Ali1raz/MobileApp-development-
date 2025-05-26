@@ -139,50 +139,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  Future<void> _handleLogout() async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Confirm Logout'),
-            content: const Text('Are you sure you want to logout?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Logout'),
-              ),
-            ],
-          ),
-    );
-
-    if (shouldLogout == true) {
-      try {
-        await _authService.logout();
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
-        }
-      } catch (e) {
-        _showErrorSnackBar(e.toString());
-      }
-    }
-  }
-
-  void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message.replaceAll('Exception: ', '')),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   void _navigateToProfile() {
     Navigator.pushNamed(context, AppConstants.profileRoute);
   }
@@ -196,7 +152,6 @@ class _MyHomePageState extends State<MyHomePage>
           icon: const Icon(Icons.person),
           onPressed: _navigateToProfile,
         ),
-        IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
       ],
       bottom: TabBar(
         controller: _tabController,

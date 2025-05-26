@@ -86,9 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("My Profile"),
-        actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
-        ],
       ),
       body:
           _isLoading
@@ -138,6 +135,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       value:
                           _userData?['role']?.toString().toUpperCase() ?? 'N/A',
                       icon: Icons.assignment_ind_outlined,
+                    ),
+                    const SizedBox(height: 22),
+
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        child: ElevatedButton.icon(
+                          onPressed: _handleLogout,
+                          icon: const Icon(Icons.logout, color: Colors.white),
+                          label: const Text(
+                            'Logout',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
