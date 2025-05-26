@@ -42,49 +42,87 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _authService = AuthService();
 
-  Future<void> _logout() async {
-    try {
-      await _authService.logout();
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
+  Future<void> _handleLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Logout'),
+              ),
+            ],
           ),
-        );
+    );
+
+    if (shouldLogout == true) {
+      try {
+        await _authService.logout();
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
+        }
+      } catch (e) {
+        _showErrorSnackBar(e.toString());
       }
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message.replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _navigateToProfile() {
+    Navigator.pushNamed(context, AppConstants.profileRoute);
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: const Text("Student Dashboard"),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.person),
+          onPressed: _navigateToProfile,
+        ),
+        IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
+      ],
+    );
+  }
+
+  Widget _buildWelcomeMessage() {
+    return Text(
+      'Manage your tasks assigned by your admin.',
+      style: Theme.of(context).textTheme.headlineSmall,
+      textAlign: TextAlign.center,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Student Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed:
-                () => Navigator.pushNamed(context, AppConstants.profileRoute),
-          ),
-          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Manage your tasks assigned by your admin.',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[_buildWelcomeMessage()],
+          ),
         ),
       ),
     );
