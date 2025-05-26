@@ -84,9 +84,26 @@ class TaskController extends Controller
     {
         try {
             $user = auth()->user();
+
+            // ✅ Ensure user is a student
+            if ($user->role !== User::ROLE_STUDENT) {
+                return response()->json([
+                    'message' => 'Only students can complete tasks.',
+                    'error' => 'FORBIDDEN_ROLE'
+                ], 403);
+            }
+
             $task = Task::findOrFail($taskId);
 
-            // Check if the task is assigned to the student
+            // ✅ Check if task is expired (due date passed)
+            if ($task->due_date && now()->gt($task->due_date)) {
+                return response()->json([
+                    'message' => 'Cannot complete task after due date.',
+                    'error' => 'TASK_OVERDUE'
+                ], 400);
+            }
+
+            // ✅ Check if the task is assigned to the student
             $studentTask = DB::table('student_task')
                 ->where('task_id', $taskId)
                 ->where('registration_number', $user->registration_number)
@@ -94,20 +111,20 @@ class TaskController extends Controller
 
             if (!$studentTask) {
                 return response()->json([
-                    'message' => 'Task not assigned to you',
+                    'message' => 'Task not assigned to you.',
                     'error' => 'TASK_NOT_ASSIGNED'
                 ], 403);
             }
 
-            // Check if task is already completed
+            // ✅ Check if task is already completed
             if ($studentTask->is_completed) {
                 return response()->json([
-                    'message' => 'Task already completed',
+                    'message' => 'Task already completed.',
                     'error' => 'TASK_ALREADY_COMPLETED'
                 ], 400);
             }
 
-            // Mark task as completed
+            // ✅ Mark task as completed
             DB::table('student_task')
                 ->where('task_id', $taskId)
                 ->where('registration_number', $user->registration_number)
@@ -117,7 +134,7 @@ class TaskController extends Controller
                 ]);
 
             return response()->json([
-                'message' => 'Task marked as complete',
+                'message' => 'Task marked as complete.',
                 'task' => [
                     'id' => $task->id,
                     'title' => $task->title,
@@ -136,6 +153,7 @@ class TaskController extends Controller
             ], 500);
         }
     }
+
 
     public function deleteTask($taskId)
     {
