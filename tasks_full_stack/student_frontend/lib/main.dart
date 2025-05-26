@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/task_details_screen.dart';
@@ -8,6 +7,8 @@ import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'models/task.dart';
 import 'constants/app_constants.dart';
+import 'widgets/task_list.dart';
+import 'widgets/task_list_tab_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _loadTasks() async {
+    setState(() => _isLoading = true);
     try {
       final token = await _authService.getToken();
       if (token == null) {
@@ -81,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage>
                   .map((task) => Task.fromJson(task))
                   .toList();
           _isLoading = false;
+          _errorMessage = null;
         });
       }
     } catch (e) {
@@ -91,6 +94,49 @@ class _MyHomePageState extends State<MyHomePage>
         });
       }
     }
+  }
+
+  List<Task> _filterTasksByPeriod(int periodInDays) {
+    final now = DateTime.now();
+    return _tasks.where((task) {
+      final dueDate = task.dueDate;
+      final difference = dueDate.difference(now).inDays;
+
+      switch (periodInDays) {
+        case 0: // Today
+          return dueDate.year == now.year &&
+              dueDate.month == now.month &&
+              dueDate.day == now.day;
+        case 3: // Next 3 days
+          return difference >= 0 && difference <= 3;
+        default:
+          return false;
+      }
+    }).toList();
+  }
+
+  Future<void> _onTaskTapped(Task task) async {
+    final updatedTask = await Navigator.push<Task>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                TaskDetailsScreen(task: task, onTaskUpdated: _updateTask),
+      ),
+    );
+
+    if (updatedTask != null) {
+      _updateTask(updatedTask);
+    }
+  }
+
+  void _updateTask(Task updatedTask) {
+    setState(() {
+      final taskIndex = _tasks.indexWhere((t) => t.id == updatedTask.id);
+      if (taskIndex != -1) {
+        _tasks[taskIndex] = updatedTask;
+      }
+    });
   }
 
   Future<void> _handleLogout() async {
@@ -141,25 +187,6 @@ class _MyHomePageState extends State<MyHomePage>
     Navigator.pushNamed(context, AppConstants.profileRoute);
   }
 
-  List<Task> _filterTasksByPeriod(int periodInDays) {
-    final now = DateTime.now();
-    return _tasks.where((task) {
-      final dueDate = task.dueDate;
-      final difference = dueDate.difference(now).inDays;
-
-      switch (periodInDays) {
-        case 0: // Today
-          return dueDate.year == now.year &&
-              dueDate.month == now.month &&
-              dueDate.day == now.day;
-        case 3: // Next 3 days
-          return difference >= 0 && difference <= 3;
-        default:
-          return false;
-      }
-    }).toList();
-  }
-
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -182,163 +209,24 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  Widget _buildTaskList() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _errorMessage!,
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(onPressed: _loadTasks, child: const Text('Retry')),
-          ],
-        ),
-      );
-    }
-
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        _buildTaskListView(_tasks), // All Tasks - pass the entire tasks list
-        _buildTaskListView(_filterTasksByPeriod(0)), // Today
-        _buildTaskListView(_filterTasksByPeriod(3)), // 3 Days
-      ],
-    );
-  }
-
-  Widget _buildTaskListView(List<Task> filteredTasks) {
-    if (filteredTasks.isEmpty) {
-      return const Center(
-        child: Text('No tasks for this period', style: TextStyle(fontSize: 16)),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadTasks,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: filteredTasks.length,
-        itemBuilder: (context, index) {
-          final task = filteredTasks[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: InkWell(
-              onTap: () async {
-                final updatedTask = await Navigator.push<Task>(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => TaskDetailsScreen(
-                          task: task,
-                          onTaskUpdated: (updatedTask) {
-                            setState(() {
-                              final taskIndex = _tasks.indexWhere(
-                                (t) => t.id == updatedTask.id,
-                              );
-                              if (taskIndex != -1) {
-                                _tasks[taskIndex] = updatedTask;
-                              }
-                            });
-                          },
-                        ),
-                  ),
-                );
-                if (updatedTask != null) {
-                  setState(() {
-                    final taskIndex = _tasks.indexWhere(
-                      (t) => t.id == updatedTask.id,
-                    );
-                    if (taskIndex != -1) {
-                      _tasks[taskIndex] = updatedTask;
-                    }
-                  });
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            task.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                task.isCompleted
-                                    ? Colors.green
-                                    : task.isOverdue
-                                    ? Colors.red
-                                    : Colors.orange,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            task.isCompleted
-                                ? 'Completed'
-                                : task.isOverdue
-                                ? 'Overdue'
-                                : 'Pending',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      task.description,
-                      style: const TextStyle(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Due: ${DateFormat('MMM dd, yyyy').format(task.dueDate)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: task.isOverdue ? Colors.red : Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppBar(), body: _buildTaskList());
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: TaskListTabView(
+        tasks: _tasks,
+        isLoading: _isLoading,
+        errorMessage: _errorMessage,
+        onRetry: _loadTasks,
+        tabController: _tabController,
+        filterTasksByPeriod: _filterTasksByPeriod,
+        taskListBuilder:
+            (tasks) => TaskList(
+              tasks: tasks,
+              onTaskTapped: _onTaskTapped,
+              onRefresh: _loadTasks,
+            ),
+      ),
+    );
   }
 }
