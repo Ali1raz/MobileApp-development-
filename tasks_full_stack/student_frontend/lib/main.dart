@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/task_details_screen.dart';
@@ -42,16 +43,25 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   final _authService = AuthService();
   List<Task> _tasks = [];
   bool _isLoading = true;
   String? _errorMessage;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _loadTasks();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTasks() async {
@@ -131,6 +141,27 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushNamed(context, AppConstants.profileRoute);
   }
 
+  List<Task> _filterTasksByPeriod(int periodInDays) {
+    final now = DateTime.now();
+    return _tasks.where((task) {
+      final dueDate = task.dueDate;
+      final difference = dueDate.difference(now).inDays;
+
+      switch (periodInDays) {
+        case 0: // Today
+          return dueDate.year == now.year &&
+              dueDate.month == now.month &&
+              dueDate.day == now.day;
+        case 3: // Next 3 days
+          return difference >= 0 && difference <= 3;
+        case 7: // This week
+          return difference >= 0 && difference <= 7;
+        default:
+          return false;
+      }
+    }).toList();
+  }
+
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -142,6 +173,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
       ],
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(text: 'Today'),
+          Tab(text: '3 Days'),
+          Tab(text: 'This Week'),
+        ],
+      ),
     );
   }
 
@@ -167,9 +206,20 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
-    if (_tasks.isEmpty) {
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildTaskListView(_filterTasksByPeriod(0)), // Today
+        _buildTaskListView(_filterTasksByPeriod(3)), // 3 Days
+        _buildTaskListView(_filterTasksByPeriod(7)), // This Week
+      ],
+    );
+  }
+
+  Widget _buildTaskListView(List<Task> filteredTasks) {
+    if (filteredTasks.isEmpty) {
       return const Center(
-        child: Text('No tasks assigned yet.', style: TextStyle(fontSize: 16)),
+        child: Text('No tasks for this period', style: TextStyle(fontSize: 16)),
       );
     }
 
@@ -177,9 +227,9 @@ class _MyHomePageState extends State<MyHomePage> {
       onRefresh: _loadTasks,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: _tasks.length,
+        itemCount: filteredTasks.length,
         itemBuilder: (context, index) {
-          final task = _tasks[index];
+          final task = filteredTasks[index];
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: InkWell(
@@ -192,7 +242,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           task: task,
                           onTaskUpdated: (updatedTask) {
                             setState(() {
-                              _tasks[index] = updatedTask;
+                              final taskIndex = _tasks.indexWhere(
+                                (t) => t.id == updatedTask.id,
+                              );
+                              if (taskIndex != -1) {
+                                _tasks[taskIndex] = updatedTask;
+                              }
                             });
                           },
                         ),
@@ -200,7 +255,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
                 if (updatedTask != null) {
                   setState(() {
-                    _tasks[index] = updatedTask;
+                    final taskIndex = _tasks.indexWhere(
+                      (t) => t.id == updatedTask.id,
+                    );
+                    if (taskIndex != -1) {
+                      _tasks[taskIndex] = updatedTask;
+                    }
                   });
                 }
               },
@@ -261,17 +321,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Icon(Icons.calendar_today, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          'Due: ${task.dueDate.toString().split(' ')[0]}',
+                          'Due: ${DateFormat('MMM dd, yyyy').format(task.dueDate)}',
                           style: TextStyle(
                             fontSize: 12,
                             color: task.isOverdue ? Colors.red : Colors.grey,
                           ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.grey,
                         ),
                       ],
                     ),
