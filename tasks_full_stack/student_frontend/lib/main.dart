@@ -154,8 +154,6 @@ class _MyHomePageState extends State<MyHomePage>
               dueDate.day == now.day;
         case 3: // Next 3 days
           return difference >= 0 && difference <= 3;
-        case 7: // This week
-          return difference >= 0 && difference <= 7;
         default:
           return false;
       }
@@ -176,9 +174,9 @@ class _MyHomePageState extends State<MyHomePage>
       bottom: TabBar(
         controller: _tabController,
         tabs: const [
+          Tab(text: 'All Tasks'),
           Tab(text: 'Today'),
           Tab(text: '3 Days'),
-          Tab(text: 'This Week'),
         ],
       ),
     );
@@ -209,9 +207,9 @@ class _MyHomePageState extends State<MyHomePage>
     return TabBarView(
       controller: _tabController,
       children: [
+        _buildTaskListView(_tasks), // All Tasks - pass the entire tasks list
         _buildTaskListView(_filterTasksByPeriod(0)), // Today
         _buildTaskListView(_filterTasksByPeriod(3)), // 3 Days
-        _buildTaskListView(_filterTasksByPeriod(7)), // This Week
       ],
     );
   }
