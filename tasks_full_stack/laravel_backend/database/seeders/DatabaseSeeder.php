@@ -17,12 +17,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('12345678'),
-            'role' => User::ROLE_ADMIN
-        ]);
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::create([
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('12345678'),
+                'role' => User::ROLE_ADMIN
+            ]);
+        }
+
 
         $this->call([
             StudentSeeder::class,
