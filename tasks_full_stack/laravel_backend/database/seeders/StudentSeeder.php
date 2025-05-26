@@ -17,7 +17,7 @@ class StudentSeeder extends Seeder
     {
         $students = [
             ['name' => "Alice Smith", 'email' => 'alice@example.com'],
-            ['name' => "Bob Johnson", 'email' => 'bob@example.com'],
+            ['name' => "Bob Johnson", 'email' => 'bob2@example.com'],
             ['name' => "Charlie Brown", 'email' => 'charlie@example.com'],
             ['name' => "Ahmad", 'email' => 'ahmad@example.com'],
             ['name' => "Abbass", 'email' => 'abbass@example.com'],
@@ -29,6 +29,7 @@ class StudentSeeder extends Seeder
             ['name' => 'Bilal', 'email' => 'bilal@example.com'],
         ];
 
+        // Create predefined students
         foreach ($students as $index => $student) {
             User::factory()->create([
                 'name' => $student['name'],
@@ -36,8 +37,15 @@ class StudentSeeder extends Seeder
                 'registration_number' => 'STU' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
                 'password' => bcrypt('password1234'),
             ]);
-
-            User::factory()->count(20)->create();
         }
+
+        // Create additional random students
+        $startIndex = count($students);
+        User::factory()
+            ->count(20)
+            ->sequence(fn($sequence) => [
+                'registration_number' => 'STU' . str_pad($startIndex + $sequence->index + 1, 3, '0', STR_PAD_LEFT)
+            ])
+            ->create();
     }
 }
