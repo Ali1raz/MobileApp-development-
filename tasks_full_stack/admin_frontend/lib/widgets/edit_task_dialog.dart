@@ -86,11 +86,17 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
+                  // Calculate the minimum allowed date
+                  final DateTime minimumDate =
+                      _dueDate != null && _dueDate!.isBefore(DateTime.now())
+                          ? _dueDate!
+                          : DateTime.now();
+
                   final date = await showDatePicker(
                     context: context,
                     initialDate: _dueDate ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    firstDate: minimumDate, // Allow original due date or today
+                    lastDate: DateTime(2030), // Reasonable future date limit
                   );
                   if (date != null) {
                     setState(() => _dueDate = date);
