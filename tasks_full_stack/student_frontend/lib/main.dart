@@ -183,13 +183,26 @@ class _MyHomePageState extends State<MyHomePage> {
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final updatedTask = await Navigator.push<Task>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TaskDetailsScreen(task: task),
+                    builder:
+                        (context) => TaskDetailsScreen(
+                          task: task,
+                          onTaskUpdated: (updatedTask) {
+                            setState(() {
+                              _tasks[index] = updatedTask;
+                            });
+                          },
+                        ),
                   ),
                 );
+                if (updatedTask != null) {
+                  setState(() {
+                    _tasks[index] = updatedTask;
+                  });
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -214,11 +227,19 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           decoration: BoxDecoration(
                             color:
-                                task.isCompleted ? Colors.green : Colors.orange,
+                                task.isCompleted
+                                    ? Colors.green
+                                    : task.isOverdue
+                                    ? Colors.red
+                                    : Colors.orange,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            task.isCompleted ? 'Completed' : 'Pending',
+                            task.isCompleted
+                                ? 'Completed'
+                                : task.isOverdue
+                                ? 'Overdue'
+                                : 'Pending',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -241,9 +262,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(width: 8),
                         Text(
                           'Due: ${task.dueDate.toString().split(' ')[0]}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: task.isOverdue ? Colors.red : Colors.grey,
                           ),
                         ),
                         const Spacer(),

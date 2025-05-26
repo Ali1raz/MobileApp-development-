@@ -28,4 +28,18 @@ class Task {
       isCompleted: json['pivot']['is_completed'] == 1,
     );
   }
+
+  Task copyWith({bool? isCompleted}) {
+    return Task(
+      id: id,
+      title: title,
+      description: description,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      dueDate: dueDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+
+  bool get isOverdue => DateTime.now().isAfter(dueDate);
 }
