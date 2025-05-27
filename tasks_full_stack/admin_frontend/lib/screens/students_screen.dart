@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/search_text_field.dart';
 import 'student_details_screen.dart';
 import 'add_student_screen.dart';
 
@@ -137,35 +138,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
           // Add search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
+            child: SearchTextField(
+              hintText: 'Search by name or registration number',
               controller: _searchController,
-              focusNode: _searchFocusNode, // Add focus node
-              decoration: InputDecoration(
-                hintText: 'Search by name or registration number',
-                prefixIcon: const Icon(Icons.search),
-                // Add clear button when text is entered
-                suffixIcon:
-                    _searchController.text.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _filterStudents(students, '');
-                            _handleUnfocus();
-                          },
-                        )
-                        : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              focusNode: _searchFocusNode,
               onChanged: (value) => _filterStudents(students, value),
-              // Add keyboard actions
-              textInputAction: TextInputAction.search,
+              onClear: () {
+                _searchController.clear();
+                _filterStudents(students, '');
+                _handleUnfocus();
+              },
               onSubmitted: (_) => _handleUnfocus(),
             ),
           ),
