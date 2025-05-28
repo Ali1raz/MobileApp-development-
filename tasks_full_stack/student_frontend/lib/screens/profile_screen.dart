@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/theme_service.dart';
 import '../constants/app_constants.dart';
+import '../main.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,14 +13,32 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _authService = AuthService();
+  final _themeService = ThemeService();
   Map<String, dynamic>? _userData;
   bool _isLoading = true;
   String? _errorMessage;
-
+  ThemeMode _currentThemeMode = ThemeMode.system;
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadInitialTheme();
+  }
+
+  Future<void> _loadInitialTheme() async {
+    if (mounted) {
+      final app = context.findAncestorStateOfType<MyAppState>();
+      if (app != null) {
+        setState(() {
+          _currentThemeMode =
+              Theme.of(context).brightness == Brightness.dark
+                  ? ThemeMode.dark
+                  : ThemeMode.light;
+        });
+      } else {
+        await _loadThemeMode();
+      }
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -36,6 +56,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _errorMessage = e.toString().replaceAll('Exception: ', '');
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _loadThemeMode() async {
+    final themeMode = await _themeService.getThemeMode();
+    setState(() {
+      _currentThemeMode = themeMode;
+    });
+  }
+
+  Future<void> _setThemeMode(ThemeMode mode) async {
+    await _themeService.setThemeMode(mode);
+    setState(() {
+      _currentThemeMode = mode;
+    });
+    if (context.mounted) {
+      final appState = context.findAncestorStateOfType<MyAppState>();
+      if (appState != null) {
+        appState.setThemeMode(mode);
       }
     }
   }
@@ -78,6 +118,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
     }
+  }
+
+  Widget _buildThemeSelector() {
+    final theme = Theme.of(context);
+    final selectedColor = theme.colorScheme.primary;
+    final unselectedColor = theme.colorScheme.onSurfaceVariant;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color:
+                  _currentThemeMode == ThemeMode.system
+                      ? theme.colorScheme.primaryContainer
+                      : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.brightness_auto,
+                color:
+                    _currentThemeMode == ThemeMode.system
+                        ? selectedColor
+                        : unselectedColor,
+              ),
+              title: const Text('System'),
+              selected: _currentThemeMode == ThemeMode.system,
+              onTap: () => _setThemeMode(ThemeMode.system),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color:
+                  _currentThemeMode == ThemeMode.light
+                      ? theme.colorScheme.primaryContainer
+                      : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.light_mode,
+                color:
+                    _currentThemeMode == ThemeMode.light
+                        ? selectedColor
+                        : unselectedColor,
+              ),
+              title: const Text('Light'),
+              selected: _currentThemeMode == ThemeMode.light,
+              onTap: () => _setThemeMode(ThemeMode.light),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color:
+                  _currentThemeMode == ThemeMode.dark
+                      ? theme.colorScheme.primaryContainer
+                      : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.dark_mode,
+                color:
+                    _currentThemeMode == ThemeMode.dark
+                        ? selectedColor
+                        : unselectedColor,
+              ),
+              title: const Text('Dark'),
+              selected: _currentThemeMode == ThemeMode.dark,
+              onTap: () => _setThemeMode(ThemeMode.dark),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -137,19 +257,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.assignment_ind_outlined,
                     ),
                     const SizedBox(height: 22),
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'Theme',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    _buildThemeSelector(),
+                    const SizedBox(height: 22),
 
                     Center(
                       child: Container(
                         margin: const EdgeInsets.only(right: 8),
                         child: ElevatedButton.icon(
                           onPressed: _handleLogout,
-                          icon: const Icon(Icons.logout, color: Colors.white),
-                          label: const Text(
+                          icon: Icon(
+                            Icons.logout,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          label: Text(
                             'Logout',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.errorContainer,
+                            elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -168,11 +307,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String value,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          Icon(icon, size: 24),
+          Icon(icon, size: 24, color: theme.colorScheme.primary),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -180,17 +320,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color.fromARGB(255, 70, 70, 70),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ],

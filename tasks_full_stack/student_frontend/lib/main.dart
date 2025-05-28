@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
+import 'services/theme_service.dart';
 import 'screens/profile_screen.dart';
 import 'screens/task_details_screen.dart';
 import 'services/auth_service.dart';
@@ -16,8 +17,35 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+  @override
+  State<MyApp> createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+  final _themeService = ThemeService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final themeMode = await _themeService.getThemeMode();
+    setState(() {
+      _themeMode = themeMode;
+    });
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+    _themeService.setThemeMode(mode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +55,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ).copyWith(surface: Colors.grey[900]),
+      ),
+      themeMode: _themeMode,
       initialRoute: AppConstants.loginRoute,
       routes: {
         AppConstants.loginRoute: (context) => const LoginScreen(),

@@ -26,9 +26,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   Future<void> _toggleCompletion() async {
     if (_task.isOverdue) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cannot mark overdue tasks as completed'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Cannot mark overdue tasks as completed'),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
         ),
       );
       return;
@@ -60,7 +62,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Task marked as completed'),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            showCloseIcon: true,
+            closeIconColor: Theme.of(context).colorScheme.onSecondaryContainer,
           ),
         );
       }
@@ -69,7 +73,9 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            showCloseIcon: true,
+            closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
           ),
         );
       }
@@ -84,9 +90,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: theme.colorScheme.inversePrimary,
         title: const Text('Task Details'),
       ),
       body: SingleChildScrollView(
@@ -120,10 +127,14 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                         decoration: BoxDecoration(
                           color:
                               _task.isCompleted
-                                  ? Colors.green
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.secondaryContainer
                                   : _task.isOverdue
-                                  ? Colors.red
-                                  : Colors.orange,
+                                  ? Theme.of(context).colorScheme.errorContainer
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
@@ -132,8 +143,19 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                               : _task.isOverdue
                               ? 'Overdue'
                               : 'Pending',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color:
+                                _task.isCompleted
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSecondaryContainer
+                                    : _task.isOverdue
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onErrorContainer
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -175,18 +197,35 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                                 : _toggleCompletion,
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              _task.isCompleted ? Colors.orange : Colors.green,
+                              _task.isCompleted
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.secondaryContainer
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                          foregroundColor:
+                              _task.isCompleted
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondaryContainer
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
                           padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
                         ),
                         child:
                             _isUpdating
-                                ? const SizedBox(
+                                ? SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimaryContainer,
                                     ),
                                   ),
                                 )
@@ -216,10 +255,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     required String title,
     required String content,
   }) {
+    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20),
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -227,10 +267,19 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 4),
-              Text(content, style: const TextStyle(fontSize: 16)),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
         ),
