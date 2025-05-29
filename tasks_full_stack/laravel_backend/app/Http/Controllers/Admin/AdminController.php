@@ -76,8 +76,28 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:6'
         ]);
 
-        $regNo = 'STU' . strtoupper(Str::random(6));
-        $password = $req->exists('password') && !empty($req->password) ? $req->password : Str::random(10);
+        // Generate sequential registration number
+        $lastStudent = User::where('role', User::ROLE_STUDENT)
+            ->orderBy('registration_number', 'desc')
+            ->first();
+
+        if ($lastStudent && preg_match('/STU(\d+)/', $lastStudent->registration_number, $matches)) {
+            $sequence = str_pad((int)$matches[1] + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $sequence = '001';
+        }
+
+        // Format: STU001, STU002, etc.
+        $regNo = 'STU' . $sequence;
+
+        // Generate memorable password if not provided
+        if (!$req->exists('password') || empty($req->password)) {
+            // Create simple password pattern: STU-Number
+            $number = rand(1000, 9999);
+            $password = 'STU' . $number;
+        } else {
+            $password = $req->password;
+        }
 
         $user = User::create([
             'name' => $req->name,
@@ -87,9 +107,15 @@ class AdminController extends Controller
             'role' => 'student',
         ]);
 
+        // Enhanced response with registration details
         return response()->json([
+            'success' => true,
             'message' => 'Student registered successfully',
-            'registration_number' => $regNo,
+            'data' => [
+                'name' => $user->name,
+                'registration_number' => $regNo,
+                'generated_password' => $req->exists('password') ? null : $password
+            ]
         ]);
     }
 
