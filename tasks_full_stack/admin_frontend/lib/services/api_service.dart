@@ -81,6 +81,8 @@ class ApiService {
       return data;
     } else if (response.statusCode == 401) {
       throw Exception('Session expired. Please login again.');
+    } else if (response.statusCode == 403) {
+      throw Exception('Invalid Credentials provided.');
     } else {
       throw Exception(
         data['message'] ?? 'Request failed with status: ${response.statusCode}',
