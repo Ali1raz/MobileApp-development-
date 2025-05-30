@@ -193,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage>
         tabs: const [
           Tab(text: 'All Tasks'),
           Tab(text: 'Today'),
-          Tab(text: '3 Days'),
+          Tab(text: 'in 3 Days'),
         ],
       ),
     );
