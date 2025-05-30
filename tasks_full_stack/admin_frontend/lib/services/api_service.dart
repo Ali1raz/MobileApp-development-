@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // this is your machine ip where you serving (laravel) api app for physical android
-  static const String baseUrl = 'http://192.168.213.66:8000/api';
+  static const String baseUrl = 'http://192.168.184.66:8000/api';
   final String? token;
 
   ApiService({this.token});

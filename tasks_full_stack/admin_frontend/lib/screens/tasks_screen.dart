@@ -20,6 +20,12 @@ class _TasksScreenState extends State<TasksScreen> {
   final FocusNode _searchFocusNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    _fetchTasks();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
@@ -30,12 +36,6 @@ class _TasksScreenState extends State<TasksScreen> {
     if (_searchFocusNode.hasFocus) {
       _searchFocusNode.unfocus();
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchTasks();
   }
 
   Future<void> _fetchTasks() async {
@@ -73,6 +73,32 @@ class _TasksScreenState extends State<TasksScreen> {
                   _filterDueDate!.toLocal().toString().split(' ')[0]);
       return matchesTitle && matchesDueDate;
     }).toList();
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'in_progress':
+        return Colors.blue;
+      case 'completed':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Icons.schedule;
+      case 'in_progress':
+        return Icons.work;
+      case 'completed':
+        return Icons.check_circle;
+      default:
+        return Icons.help;
+    }
   }
 
   @override
@@ -199,12 +225,21 @@ class _TasksScreenState extends State<TasksScreen> {
                                             final totalStudents =
                                                 students.length;
 
-                                            return Card(
+                                            return Container(
                                               margin:
                                                   const EdgeInsets.symmetric(
                                                     horizontal: 16,
                                                     vertical: 8,
                                                   ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.2),
+                                                ),
+                                              ),
                                               child: InkWell(
                                                 onTap: () async {
                                                   final result =
@@ -375,11 +410,29 @@ class _TasksScreenState extends State<TasksScreen> {
                                                             ...students.map<
                                                               Widget
                                                             >(
-                                                              (student) => Card(
+                                                              (
+                                                                student,
+                                                              ) => Container(
                                                                 margin:
                                                                     const EdgeInsets.only(
                                                                       bottom: 8,
                                                                     ),
+                                                                decoration: BoxDecoration(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                  border: Border.all(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .withOpacity(
+                                                                          0.2,
+                                                                        ),
+                                                                  ),
+                                                                ),
                                                                 child: ListTile(
                                                                   leading: CircleAvatar(
                                                                     backgroundColor:
@@ -466,31 +519,5 @@ class _TasksScreenState extends State<TasksScreen> {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'in_progress':
-        return Colors.blue;
-      case 'completed':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Icons.schedule;
-      case 'in_progress':
-        return Icons.work;
-      case 'completed':
-        return Icons.check_circle;
-      default:
-        return Icons.help;
-    }
   }
 }

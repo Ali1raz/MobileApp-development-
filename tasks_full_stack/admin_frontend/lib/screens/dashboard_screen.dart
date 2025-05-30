@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../services/dashboard_excel_export.dart';
-import '../services/excel_service.dart';
 import '../widgets/dashboard/stats_grid.dart';
 import '../widgets/dashboard/recent_activities.dart';
 import '../widgets/dashboard/student_performance_card.dart';
@@ -48,69 +46,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _exportToExcel() async {
-    try {
-      if (!await ExcelService.requestStoragePermission(context)) return;
-
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final dashboardData = auth.dashboardData;
-
-      if (dashboardData == null || dashboardData['success'] != true) {
-        throw Exception('Invalid dashboard data');
-      }
-
-      // Create Excel workbook
-      final excelDoc = DashboardExcelExport.createDashboardExcel(dashboardData);
-
-      // Save the Excel file
-      final dateStamp = DateTime.now()
-          .toString()
-          .replaceAll(':', '-')
-          .replaceAll(' ', '_');
-      final fileName = 'dashboard_stats_$dateStamp.xlsx';
-
-      final filePath = await ExcelService.getExcelFilePath(fileName);
-      if (filePath == null) {
-        throw Exception('Could not determine file save location');
-      }
-
-      final success = await ExcelService.saveExcelFile(excelDoc, filePath);
-      if (!success) {
-        throw Exception('Failed to save Excel file');
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Excel file exported successfully!'),
-                Text(
-                  'Saved to: ${filePath.split('/').last}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(label: 'OK', onPressed: () {}),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error exporting to Excel: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
       }
     }
   }
@@ -182,17 +117,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        actions: [
-          if (!_isLoading && auth.dashboardData != null)
-            IconButton(
-              icon: const Icon(Icons.file_download),
-              tooltip: 'Export to Excel',
-              onPressed: _exportToExcel,
-            ),
-        ],
-      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

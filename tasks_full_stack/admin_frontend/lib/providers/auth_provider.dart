@@ -8,7 +8,7 @@ import '../services/user_service.dart';
 import 'package:http/http.dart' as http;
 
 class AuthProvider with ChangeNotifier {
-  static const String _baseUrl = 'http://192.168.213.66:8000/api';
+  static const String _baseUrl = 'http://192.168.184.66:8000/api';
   String? _token;
   Map<String, dynamic>? _userData;
   Map<String, dynamic>? _dashboardData;

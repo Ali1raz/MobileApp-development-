@@ -127,6 +127,98 @@ class _StudentsScreenState extends State<StudentsScreen> {
     );
   }
 
+  Widget _buildStudentCard(Map<String, dynamic> student) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+      ),
+      child: InkWell(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => StudentDetailsScreen(
+                    registrationNumber: student['registration_number'],
+                  ),
+            ),
+          );
+          _fetchStudents();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha(60),
+                    child: Text(
+                      (student['name'] ?? '?')[0].toUpperCase(),
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          student['name'] ?? 'No Name',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          student['email'] ?? 'No Email',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      student['registration_number'] ?? 'No ID',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStudentList(List<Map<String, dynamic>> students) {
     _filteredStudents ??= students;
 
@@ -160,46 +252,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       ? const Center(child: Text('No students found'))
                       : ListView.builder(
                         itemCount: _filteredStudents!.length,
-                        itemBuilder: (context, index) {
-                          final student = _filteredStudents![index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                child: Text(
-                                  (student['name'] ?? '?')[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              title: Text(student['name'] ?? 'No Name'),
-                              subtitle: Text(student['email'] ?? 'No Email'),
-                              trailing: Text(
-                                student['registration_number'] ?? 'No ID',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              onTap: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => StudentDetailsScreen(
-                                          registrationNumber:
-                                              student['registration_number'],
-                                        ),
-                                  ),
-                                );
-                                _fetchStudents();
-                              },
-                            ),
-                          );
-                        },
+                        itemBuilder:
+                            (context, index) =>
+                                _buildStudentCard(_filteredStudents![index]),
                       ),
             ),
           ),

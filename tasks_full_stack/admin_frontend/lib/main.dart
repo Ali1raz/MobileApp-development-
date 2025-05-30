@@ -7,6 +7,10 @@ import 'screens/tasks_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/add_student_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/task_details_screen.dart';
+import 'screens/student_details_screen.dart';
+import 'services/dashboard_excel_export.dart';
+import 'services/excel_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,6 +49,19 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (_) => const AddStudentScreen(),
               );
+            case '/task-details':
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => TaskDetailsScreen(task: args),
+              );
+            case '/student-details':
+              final registrationNumber = settings.arguments as String;
+              return MaterialPageRoute(
+                builder:
+                    (_) => StudentDetailsScreen(
+                      registrationNumber: registrationNumber,
+                    ),
+              );
             default:
               return MaterialPageRoute(builder: (_) => const AuthWrapper());
           }
@@ -73,6 +90,69 @@ class _AuthWrapperState extends State<AuthWrapper> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AuthProvider>(context, listen: false).initAuth();
     });
+  }
+
+  Future<void> _exportToExcel() async {
+    try {
+      if (!await ExcelService.requestStoragePermission(context)) return;
+
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final dashboardData = auth.dashboardData;
+
+      if (dashboardData == null || dashboardData['success'] != true) {
+        throw Exception('Invalid dashboard data');
+      }
+
+      // Create Excel workbook
+      final excelDoc = DashboardExcelExport.createDashboardExcel(dashboardData);
+
+      // Save the Excel file
+      final dateStamp = DateTime.now()
+          .toString()
+          .replaceAll(':', '-')
+          .replaceAll(' ', '_');
+      final fileName = 'dashboard_stats_$dateStamp.xlsx';
+
+      final filePath = await ExcelService.getExcelFilePath(fileName);
+      if (filePath == null) {
+        throw Exception('Could not determine file save location');
+      }
+
+      final success = await ExcelService.saveExcelFile(excelDoc, filePath);
+      if (!success) {
+        throw Exception('Failed to save Excel file');
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Excel file exported successfully!'),
+                Text(
+                  'Saved to: ${filePath.split('/').last}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(label: 'OK', onPressed: () {}),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting to Excel: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _showLogoutConfirmation(BuildContext context) async {
@@ -133,6 +213,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
                 case 'profile':
                   Navigator.pushNamed(context, '/profile');
                   break;
+                case 'export':
+                  _exportToExcel();
+                  break;
                 case 'logout':
                   _showLogoutConfirmation(context);
                   break;
@@ -147,6 +230,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
                         Icon(Icons.person_outline),
                         SizedBox(width: 8),
                         Text('View Profile'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'export',
+                    child: Row(
+                      children: [
+                        Icon(Icons.file_download),
+                        SizedBox(width: 8),
+                        Text('Export Dashboard'),
                       ],
                     ),
                   ),
