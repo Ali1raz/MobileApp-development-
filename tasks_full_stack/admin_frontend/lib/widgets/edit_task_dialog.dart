@@ -44,103 +44,145 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
     final students = auth.students ?? [];
 
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text('Edit Task', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Due Date'),
-                subtitle: Text(
-                  _dueDate != null
-                      ? '${_dueDate!.year}-${_dueDate!.month.toString().padLeft(2, '0')}-${_dueDate!.day.toString().padLeft(2, '0')}'
-                      : 'No due date selected',
-                ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  // Calculate the minimum allowed date
-                  final DateTime minimumDate =
-                      _dueDate != null && _dueDate!.isBefore(DateTime.now())
-                          ? _dueDate!
-                          : DateTime.now();
+              Expanded(
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Title field
+                            TextFormField(
+                              controller: _titleController,
+                              decoration: const InputDecoration(
+                                labelText: 'Title',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter a title';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            // Description field
+                            TextFormField(
+                              controller: _descriptionController,
+                              decoration: const InputDecoration(
+                                labelText: 'Description',
+                                border: OutlineInputBorder(),
+                              ),
+                              maxLines: 3,
+                            ),
+                            const SizedBox(height: 16),
+                            // Due date selector
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Due Date'),
+                              subtitle: Text(
+                                _dueDate != null
+                                    ? '${_dueDate!.year}-${_dueDate!.month.toString().padLeft(2, '0')}-${_dueDate!.day.toString().padLeft(2, '0')}'
+                                    : 'No due date selected',
+                              ),
+                              trailing: const Icon(Icons.calendar_today),
+                              onTap: () async {
+                                final DateTime minimumDate =
+                                    _dueDate != null &&
+                                            _dueDate!.isBefore(DateTime.now())
+                                        ? _dueDate!
+                                        : DateTime.now();
 
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _dueDate ?? DateTime.now(),
-                    firstDate: minimumDate, // Allow original due date or today
-                    lastDate: DateTime(2030), // Reasonable future date limit
-                  );
-                  if (date != null) {
-                    setState(() => _dueDate = date);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Assigned Students',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 200),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final student = students[index];
-                    final isSelected = _selectedStudents.contains(
-                      student['registration_number'],
-                    );
-                    return CheckboxListTile(
-                      title: Text(student['name']),
-                      subtitle: Text(student['registration_number']),
-                      value: isSelected,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value == true) {
-                            _selectedStudents.add(
-                              student['registration_number'],
-                            );
-                          } else {
-                            _selectedStudents.remove(
-                              student['registration_number'],
-                            );
-                          }
-                        });
-                      },
-                    );
-                  },
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: _dueDate ?? DateTime.now(),
+                                  firstDate: minimumDate,
+                                  lastDate: DateTime(2030),
+                                );
+                                if (date != null) {
+                                  setState(() => _dueDate = date);
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            // Student selection
+                            Text(
+                              'Assigned Students',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            // Student list in a card with fixed height
+                            Card(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.25,
+                                ),
+                                child: Scrollbar(
+                                  thumbVisibility: true,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: students.length,
+                                    itemBuilder: (context, index) {
+                                      final student = students[index];
+                                      final isSelected = _selectedStudents
+                                          .contains(
+                                            student['registration_number'],
+                                          );
+                                      return CheckboxListTile(
+                                        dense: true,
+                                        title: Text(student['name']),
+                                        subtitle: Text(
+                                          student['registration_number'],
+                                        ),
+                                        value: isSelected,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            if (value == true) {
+                                              _selectedStudents.add(
+                                                student['registration_number'],
+                                              );
+                                            } else {
+                                              _selectedStudents.remove(
+                                                student['registration_number'],
+                                              );
+                                            }
+                                          });
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -177,7 +219,9 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Error updating task: $e'),
+                                      content: Text(
+                                        'Error updating task: ${e.toString()}',
+                                      ),
                                     ),
                                   );
                                 }
@@ -194,7 +238,7 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                            : const Text('Update'),
+                            : const Text('Save'),
                   ),
                 ],
               ),
