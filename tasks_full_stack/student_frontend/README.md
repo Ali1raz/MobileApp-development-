@@ -9,6 +9,8 @@ A Flutter-based mobile application that serves as the frontend for a student tas
     <img src="screenshots/img_2.png" alt="screenshot" width="300" />
     <img src="screenshots/img_3.png" alt="screenshot" width="300" />
     <img src="screenshots/img_4.png" alt="screenshot" width="300" />
+    <img src="screenshots/img_5.png" alt="screenshot" width="300" />
+    <img src="screenshots/img_6.png" alt="screenshot" width="300" />
 </div>
 
 ## Features
