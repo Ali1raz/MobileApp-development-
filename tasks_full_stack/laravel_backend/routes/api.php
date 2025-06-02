@@ -26,6 +26,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
+    Route::get('/pending-registrations', [AdminController::class, 'getPendingRegistrations']);
+    Route::post('/approve-registration/{id}', [AdminController::class, 'approveRegistration']);
+    Route::post('/reject-registration/{id}', [AdminController::class, 'rejectRegistration']);
+
+
     Route::post('register-student', [AdminController::class, 'registerStudent']);
     Route::get('/students', [AdminController::class, 'listStudents']);
     Route::get('/students/{registration_number}', [AdminController::class, 'viewStudent']);
@@ -45,6 +50,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 });
 
 Route::post('/student/login', [StudentController::class, 'store']);
+Route::post('/student/register', [StudentController::class, 'register']);
+
 
 Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
@@ -54,7 +61,6 @@ Route::middleware(['auth:sanctum', 'role:student'])->prefix('student')->group(fu
     Route::put('/profile', [UserController::class, 'updateProfile']);
 
     Route::get('/tasks', [TaskController::class, 'index']);
-    Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
     Route::post('/tasks/{taskId}/complete', [TaskController::class, 'markComplete']);
 });
 

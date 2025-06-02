@@ -119,6 +119,80 @@ class AdminController extends Controller
         ]);
     }
 
+    public function getPendingRegistrations()
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $pendingStudents = User::where('role', User::ROLE_STUDENT)
+            ->where('status', User::STATUS_PENDING)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'pending_registrations' => $pendingStudents
+        ]);
+    }
+
+    public function approveRegistration(string $id)
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::findOrFail($id);
+
+        // Generate registration number
+        $lastStudent = User::where('role', User::ROLE_STUDENT)
+            ->where('status', User::STATUS_APPROVED)
+            ->orderBy('registration_number', 'desc')
+            ->first();
+
+        if ($lastStudent && preg_match('/STU(\d+)/', $lastStudent->registration_number, $matches)) {
+            $sequence = str_pad((int)$matches[1] + 1, 3, '0', STR_PAD_LEFT);
+        } else {
+            $sequence = '001';
+        }
+
+        $regNo = 'STU' . $sequence;
+
+        // Generate password
+        $number = rand(1000, 9999);
+        $password = 'STU' . $number;
+
+        $student->update([
+            'status' => User::STATUS_APPROVED,
+            'registration_number' => $regNo,
+            'password' => Hash::make($password)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student registration approved',
+            'data' => [
+                'name' => $student->name,
+                'registration_number' => $regNo,
+                'generated_password' => $password
+            ]
+        ]);
+    }
+
+    public function rejectRegistration(string $id)
+    {
+        if (auth()->user()->role !== User::ROLE_ADMIN) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = User::findOrFail($id);
+        $student->update(['status' => User::STATUS_REJECTED]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student registration rejected'
+        ]);
+    }
+
     public function listStudents()
     {
         if (auth()->user()->role !== User::ROLE_ADMIN) {
