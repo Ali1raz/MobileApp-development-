@@ -17,6 +17,32 @@ class StudentController extends Controller
         ]);
     }
 
+    public function register(Request $req)
+    {
+        $req->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+        ]);
+
+        $user = User::create([
+            'name' => $req->name,
+            'email' => $req->email,
+            'role' => User::ROLE_STUDENT,
+            'status' => User::STATUS_PENDING,
+            // No registration number or password yet - will be set upon approval
+
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration submitted successfully. Please wait for admin approval.',
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
+    }
+
     public function store(Request $req)
     {
         $req->validate([
