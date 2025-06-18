@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "421547517986",
+    "firebase_url": "https://group-splitter-default-rtdb.firebaseio.com",
+    "project_id": "group-splitter",
+    "storage_bucket": "group-splitter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421547517986:android:8cef4c96753f8cedab427b",
+        "android_client_info": {
+          "package_name": "com.example.smart_split_firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzd_aHwH50YtMZvh-DY0VpDEnKk7fg0Cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
