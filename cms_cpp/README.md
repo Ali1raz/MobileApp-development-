@@ -11,6 +11,11 @@ git clone https://github.com/Ali1raz/committee-management-system-in-cpp.git cms
 This will create `cms` directory. Open it and compile and run main.cpp.
 
 ![cms menu screenshot](./assets/cms_menu_1.png)
+![cms menu screenshot](./assets/Screenshot%202025-02-25%20094959.png)
+![cms menu screenshot](./assets/Screenshot%202025-02-25%20095058.png)
+![cms menu screenshot](./assets/Screenshot%202025-02-25%20095351.png)
+![cms menu screenshot](./assets/Screenshot%202025-02-25%20095429.png)
+
 
 ## Features:
 
