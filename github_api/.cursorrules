@@ -1,0 +1,130 @@
+# GitHub API Flutter App — Instructions & Rules
+
+Instructions for working on this project and rules for code style, structure, and contributions.
+
+---
+
+## 1. Project overview
+
+- **Name:** `github_api`
+- **Type:** Flutter mobile app (Android / iOS)
+- **Purpose:** Browse GitHub users, repositories, and events via the GitHub API
+- **SDK:** Dart `^3.7.2`
+- **Key dependencies:** `http`, `timeago`, `url_launcher`
+
+---
+
+## 2. Getting started
+
+### Prerequisites
+
+- Flutter SDK (compatible with Dart 3.7.2+)
+- Android Studio / Xcode for device/simulator (as needed)
+
+### Commands
+
+```bash
+# Install dependencies
+flutter pub get
+
+# Run app (connected device or emulator)
+flutter run
+
+# Run analyzer (lint)
+flutter analyze
+
+# Run tests
+flutter test
+```
+
+### Project layout
+
+- `lib/` — Application source
+  - `main.dart` — App entry point
+  - `models/` — Data models (e.g. `github_user`, `github_repo`, `github_event`)
+  - `pages/` — Full-screen pages (e.g. user details, repo details)
+  - `services/` — API and business logic (e.g. `github_service`)
+  - `utils/` — Helpers (e.g. errors, time formatting)
+  - `widgets/` — Reusable UI components
+- `test/` — Unit and widget tests
+- `android/`, `ios/` — Platform-specific code
+
+---
+
+## 3. Code rules and conventions
+
+### 3.1 Dart & Flutter style
+
+- Follow [Effective Dart](https://dart.dev/guides/language/effective-dart) (style, documentation, usage).
+- Use the project’s `analysis_options.yaml` and run `flutter analyze` before committing; fix all analyzer errors and warnings.
+- Prefer `const` constructors and widgets where possible.
+- Use single quotes for strings unless the string contains a single quote.
+- Format with `dart format` (or your IDE’s formatter).
+
+### 3.2 Naming
+
+- **Files:** `snake_case` (e.g. `repo_details_page.dart`, `github_service.dart`).
+- **Classes / enums / typedefs:** `PascalCase`.
+- **Variables, parameters, functions, methods:** `camelCase`.
+- **Private members:** leading underscore, `_camelCase`.
+- **Constants:** `camelCase` or `lowerCamelCase` (Dart convention).
+
+### 3.3 Project structure rules
+
+- **Models** (`lib/models/`): Plain data classes; use `fromJson`/`toJson` for API parsing. Keep free of UI and HTTP logic.
+- **Services** (`lib/services/`): API calls and app-level logic only. No direct use of Flutter widgets; return data or throw/handle errors.
+- **Pages** (`lib/pages/`): One main widget per file; file name should match the primary page/screen (e.g. `user_details_page.dart` → `UserDetailsPage`).
+- **Widgets** (`lib/widgets/`): Reusable, presentational or small feature widgets. Prefer small, focused widgets over large monolithic ones.
+- **Utils** (`lib/utils/`): Pure helpers (formatting, error types, etc.) with no dependency on Flutter UI or HTTP.
+
+### 3.4 API and external usage
+
+- All GitHub API access must go through `lib/services/github_service.dart` (or an agreed single service layer). Do not scatter raw `http` calls across pages/widgets.
+- Handle errors via `lib/utils/app_errors.dart` (or the project’s chosen error types). Show user-friendly messages; log or report technical details as needed.
+- Do not commit API keys or secrets. Use environment variables or a secure config approach for any tokens.
+
+### 3.5 UI and UX
+
+- Use Material Design (or the project’s chosen design system) consistently.
+- Support different screen sizes and orientations where relevant.
+- Show loading and error states for all async operations (e.g. list loading, pull-to-refresh, error retry).
+
+---
+
+## 4. Testing
+
+- Add or update tests when adding or changing behavior, especially in services and reusable widgets.
+- Run `flutter test` before pushing. Keep tests in `test/` and name them so it’s clear what they cover.
+
+---
+
+## 5. Version control and workflow
+
+- Commit often with clear, short messages (e.g. “Add repo details page”, “Fix user search error handling”).
+- Do not commit generated or local-only files (e.g. `build/`, `.dart_tool/`, IDE config that’s not shared). Respect `.gitignore`.
+- Before opening a PR or pushing to a shared branch, run `flutter analyze` and `flutter test`.
+
+---
+
+## 6. Adding dependencies
+
+- Prefer packages from [pub.dev](https://pub.dev) with good maintenance and compatibility with Dart 3.x.
+- Add version constraints in `pubspec.yaml` (e.g. `^1.2.0`). After adding or changing dependencies, run `flutter pub get` and `flutter analyze`.
+- Document in code or in this file why a new dependency is needed if it’s not obvious.
+
+---
+
+## 7. Summary checklist
+
+Before considering a change “done”:
+
+- [ ] `flutter pub get` (if dependencies changed)
+- [ ] `flutter analyze` passes
+- [ ] `flutter test` passes
+- [ ] No hardcoded secrets or API keys
+- [ ] New code follows the structure (models / services / pages / widgets / utils) and naming above
+- [ ] User-facing errors and loading states are handled
+
+---
+
+*Last updated to match the current `github_api` Flutter project layout and `pubspec.yaml`.*

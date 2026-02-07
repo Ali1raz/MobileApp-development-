@@ -53,6 +53,56 @@ class GithubService {
     }
   }
 
+  Future<List<GithubRepo>> fetchUserRepos(
+    String username, {
+    int page = 1,
+  }) async {
+    try {
+      final url = Uri.parse(
+        '$baseUrl/users/$username/repos?page=$page&per_page=$perPage&sort=updated',
+      );
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data
+            .map((e) => GithubRepo.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else if (response.statusCode == 404) {
+        throw AppError.userNotFound;
+      } else {
+        throw AppError.unknownError;
+      }
+    } catch (e) {
+      if (e is AppError) rethrow;
+      if (e.toString().toLowerCase().contains('network') ||
+          e.toString().toLowerCase().contains('socket')) {
+        throw AppError.networkError;
+      }
+      throw AppError.unknownError;
+    }
+  }
+
+  /// Returns total commit count from contributors stats, or null if unavailable (e.g. 202).
+  Future<int?> fetchRepoCommitCount(String fullName) async {
+    try {
+      final url = Uri.parse('$baseUrl/repos/$fullName/stats/contributors');
+      final response = await http.get(url);
+      if (response.statusCode == 202) return null; // still computing
+      if (response.statusCode != 200) return null;
+      final data = jsonDecode(response.body) as List<dynamic>;
+      int total = 0;
+      for (final e in data) {
+        if (e is Map<String, dynamic> && e['total'] != null) {
+          total += (e['total'] as num).toInt();
+        }
+      }
+      return total;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<GithubEvent>> fetchUserEvents(
     String username, {
     int page = 1,

@@ -10,6 +10,8 @@ class GithubRepo {
   final String ownerName;
   final String ownerAvatarUrl;
   final DateTime updatedAt;
+  final int openIssuesCount;
+  final int sizeKb;
 
   GithubRepo({
     required this.name,
@@ -23,6 +25,8 @@ class GithubRepo {
     required this.ownerName,
     required this.ownerAvatarUrl,
     required this.updatedAt,
+    required this.openIssuesCount,
+    required this.sizeKb,
   });
 
   factory GithubRepo.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,8 @@ class GithubRepo {
       ownerName: json['owner']['login'] as String,
       ownerAvatarUrl: json['owner']['avatar_url'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      openIssuesCount: json['open_issues_count'] as int? ?? 0,
+      sizeKb: json['size'] as int? ?? 0,
     );
   }
-} 
+}
